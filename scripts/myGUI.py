@@ -27,7 +27,7 @@ class myGUI(QMainWindow):
         self.setCentralWidget(self.table_widget)
 
         self.setWindowTitle('Python Project Build v1.0')
-        self.setGeometry(300, 300, 500, 500) # mixture of move(x, y) and resize(width, height)
+        self.setGeometry(400, 400, 600, 600) # mixture of move(x, y) and resize(width, height)
 
         # set font & size of tool tip
         QToolTip.setFont(QFont('SansSerif', 10))
@@ -64,6 +64,7 @@ class myGUI(QMainWindow):
         filemenu.addAction(remove_all_tab_menu)
         remove_all_tab_menu.triggered.connect(self.removeAllTabs)
 
+
         # add filemenu [TOP: File] --> imageMenu [Middle: 'Import'] --> datasetMenu [Bottom: 'Import mail]
         import_subMenu = QMenu('Import', self)
         imageMenu = QAction('Image Files', self)
@@ -85,7 +86,7 @@ class myGUI(QMainWindow):
         # set a status bar at bottom of window
         self.statusBar().showMessage('Ready')
         
-        # Add toolbars
+        # ====== Add toolbars ======
         fileToolBar = self.addToolBar('Tab control')    # set name of toolbar
         fileToolBar.addAction(remove_all_tab_menu)
         
@@ -192,11 +193,23 @@ class drawCanvas(QtWidgets.QWidget):
         # set up canvas to draw
         self.canvas_layout = QVBoxLayout(self)
         self.canvas_label = QLabel()
-        canvas = QtGui.QPixmap(300, 300)
-        canvas.fill(QtGui.QColor("white"))
-        self.canvas_label.setPixmap(canvas)
+        self.canvas = QtGui.QPixmap(300, 300)
+        self.canvas.fill(QtGui.QColor("white"))
+        self.canvas_label.setPixmap(self.canvas)
         self.canvas_layout.addWidget(self.canvas_label)
         self.last_x, self.last_y = None, None
+
+        # add button to clear canvas
+        clearButton = QPushButton('Clear')
+        self.canvas_layout.addWidget(clearButton)
+
+        clearButton.clicked.connect(self.clear_click)
+
+
+    @QtCore.pyqtSlot()
+    # clear canvas
+    def clear_click(self):
+        self.canvas_label.setPixmap(self.canvas)
     
     # Adapted from https://www.pythonguis.com/tutorials/bitmap-graphics/
     def mouseMoveEvent(self, e):
@@ -205,10 +218,11 @@ class drawCanvas(QtWidgets.QWidget):
             self.last_y = e.y()
             return # Ignore the first time.
 
-        painter = QtGui.QPainter(self.canvas_label.pixmap())
-        painter.drawLine(self.last_x, self.last_y, e.x(), e.y())
-        painter.end()
+        self.painter = QtGui.QPainter(self.canvas_label.pixmap())
+        self.painter.drawLine(self.last_x, self.last_y, e.x(), e.y())
+        self.painter.end()
         self.update()
+
 
         # Update the origin for next time.
         self.last_x = e.x()
