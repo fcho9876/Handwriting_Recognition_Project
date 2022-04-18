@@ -94,8 +94,17 @@ class myGUI(QMainWindow):
 
         # set a status bar at bottom of window
         self.statusBar().showMessage('Ready')
-        ## Add tool bar (displays image as well)
-        #self.toolbar = self.addToolBar('Exit')
+        
+        # Add toolbars
+        fileToolBar = self.addToolBar('Tab control')    # set name of toolbar
+        fileToolBar.addAction(remove_all_tab_menu)
+        
+        otherToolBar = self.addToolBar('Other control')
+        otherToolBar.addAction(imageMenu) # opens new window to view images
+
+
+
+
 
         self.show()  # make visible
 
