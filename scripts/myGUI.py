@@ -20,9 +20,6 @@ class myGUI(QMainWindow):
         self.show()
 
     def initUI(self):
-        listWidget = QListWidget()
-        QListWidgetItem("Dixon", listWidget)
-        QListWidgetItem("Cider", listWidget)
 
         self.table_widget = MyTableWidget(self)
         self.setCentralWidget(self.table_widget)
@@ -57,18 +54,18 @@ class myGUI(QMainWindow):
         filemenu.addAction(exitAction)
 
         # sub menu to open to new tab
-        new_tab_menu = QAction('Open new tab', self)
+        new_tab_menu = QAction('Open New Tab 1', self)
         filemenu.addAction(new_tab_menu)
         # link to open tab function
         new_tab_menu.triggered.connect(self.add_tab_1)
         
         # open another tab 
-        new_tab_menu2 = QAction('Open tab 2', self)
+        new_tab_menu2 = QAction('Open New Tab 2', self)
         filemenu.addAction(new_tab_menu2)
         new_tab_menu2.triggered.connect(self.add_tab_2)
 
         # close tab through menu selection
-        remove_tab_menu = QAction('Close tab', self)
+        remove_tab_menu = QAction('Close Current Tab', self)
         filemenu.addAction(remove_tab_menu)
         remove_tab_menu.triggered.connect(self.removeTab)
 
@@ -92,15 +89,13 @@ class myGUI(QMainWindow):
 
         # set a status bar at bottom of window
         self.statusBar().showMessage('Ready')
-        # Add tool bar (displays image as well)
-        # self.toolbar = self.addToolBar('Exit')
+        ## Add tool bar (displays image as well)
+        #self.toolbar = self.addToolBar('Exit')
 
-        #MyTableWidget.openNewTab
         self.show()  # make visible
 
         view_data.triggered.connect(self.view_data_window)
         imageMenu.triggered.connect(self.image_files_window)
-        #imageMenu.triggered.connect(self.open_new_tab)
 
     
     # signal to connect view_data signal
@@ -115,7 +110,7 @@ class myGUI(QMainWindow):
 
     def removeTab(self):
         self.table_widget.tabs.removeTab(0)
-
+    
     # open new window
     def view_data_window(self):
         w = QDialog(self)
