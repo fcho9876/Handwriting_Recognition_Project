@@ -9,7 +9,6 @@ from PyQt5 import QtCore
 
 from PyQt5.QtWidgets import *
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
-from PyQt5.QtCore import Qt
 
 class myGUI(QMainWindow):
 
@@ -17,17 +16,13 @@ class myGUI(QMainWindow):
         super().__init__()
         self.initUI()
 
-        self.table_widget = MyTableWidget(self)
-        self.setCentralWidget(self.table_widget)
-        self.show()
-
     def initUI(self):
+        self.setWindowTitle('Python Project Build v1.0')
+        self.setGeometry(300, 300, 500, 500) # mixture of move(x, y) and resize(width, height)
 
+        # Initialize tab widget
         self.table_widget = MyTableWidget(self)
         self.setCentralWidget(self.table_widget)
-
-        self.setWindowTitle('Python Project Build v1.0')
-        self.setGeometry(400, 400, 600, 600) # mixture of move(x, y) and resize(width, height)
 
         # set font & size of tool tip
         QToolTip.setFont(QFont('SansSerif', 10))
@@ -43,40 +38,42 @@ class myGUI(QMainWindow):
         filemenu = menubar.addMenu('&File') # &File is simpler version of setShortcut() -> 'Alt + F'
         filemenu.addAction(exitAction)
 
-        # sub menu to open to new tab
-        new_tab_menu = QAction('Open New Tab 1', self)
-        filemenu.addAction(new_tab_menu)
-        # link to open tab function
-        new_tab_menu.triggered.connect(self.add_tab_1)
-        
-        # open another tab 
-        new_tab_menu2 = QAction('Open New Tab 2', self)
-        filemenu.addAction(new_tab_menu2)
-        new_tab_menu2.triggered.connect(self.add_tab_2)
-
-        # close tab through menu selection
-        remove_tab_menu = QAction('Close Current Tab', self)
-        filemenu.addAction(remove_tab_menu)
-        remove_tab_menu.triggered.connect(self.removeTab)
-
-        # close all tabs currently open
-        remove_all_tab_menu = QAction('Close All Tabs', self)
-        filemenu.addAction(remove_all_tab_menu)
-        remove_all_tab_menu.triggered.connect(self.removeAllTabs)
-
-
         # add filemenu [TOP: File] --> imageMenu [Middle: 'Import'] --> datasetMenu [Bottom: 'Import mail]
         import_subMenu = QMenu('Import', self)
         imageMenu = QAction('Image Files', self)
+        imageMenu.triggered.connect(self.image_files_window)
         datasetMenu = QAction('Datasets', self)
         import_subMenu.addAction(imageMenu)
         import_subMenu.addAction(datasetMenu)
         filemenu.addMenu(import_subMenu)
 
-        # new menu 'view'
+        # sub menu to open/close tabs in our window
+        # tab 1
+        new_tab_menu = QAction('Open New Tab 1', self)
+        filemenu.addAction(new_tab_menu)
+        new_tab_menu.triggered.connect(self.add_tab_1)  # link (signal) to open tab function
+        
+        # tab 2
+        new_tab_menu2 = QAction('Open New Tab 2', self)
+        filemenu.addAction(new_tab_menu2)
+        new_tab_menu2.triggered.connect(self.add_tab_2)
+
+        # close current tab
+        remove_tab_menu = QAction('Close Current Tab', self)
+        filemenu.addAction(remove_tab_menu)
+        remove_tab_menu.triggered.connect(self.removeTab)
+
+        # close all open tabs
+        remove_all_tab_menu = QAction('Close All Tabs', self)
+        filemenu.addAction(remove_all_tab_menu)
+        remove_all_tab_menu.triggered.connect(self.removeAllTabs)
+
+        # Add view menu
         viewmenu = menubar.addMenu('&View')
         view_data = QAction('View data', self)
         viewmenu.addAction(view_data)
+        view_data.triggered.connect(self.view_data_window)  # launch new 'View Data' window
+
         version_history = QMenu('Version history', self)
         version_number = QAction('Version number', self)
         version_history.addAction(version_number)
@@ -92,28 +89,34 @@ class myGUI(QMainWindow):
         otherToolBar = self.addToolBar('Other control')
         otherToolBar.addAction(imageMenu) # opens new window to view images
 
-
-
-
-
         self.show()  # make visible
 
-        view_data.triggered.connect(self.view_data_window)
-        imageMenu.triggered.connect(self.image_files_window)
-
-    
+        
     # signal to connect view_data signal
-    # every time a QAction is trigger signal emitted, this signal must be connected
-    # to some function, this can be done using slot function
-    @QtCore.pyqtSlot()
+    # every time a QAction is trigger signal emitted, this signal must be connectedto some function, this can be done using slot function
+    @pyqtSlot()
+    # open new windows
+    def view_data_window(self):
+        new_window = QDialog(self)
+        new_window.setWindowTitle('View Data')
+        new_window.resize(300, 400)
+        new_window.exec_()
+
+    def image_files_window(self):
+        new_window2 = QDialog(self)
+        new_window2.setWindowTitle('Image Files')
+        new_window2.resize(300, 400)
+        new_window2.exec_()
+
+    # open/close tabs
     def add_tab_1(self):
-        self.table_widget.tabs.addTab(tab_1_widget(),"Tab 1")
-    
+        self.table_widget.tabs.addTab(tab_1_widget(), "Tab 1")
+
     def add_tab_2(self):
-        self.table_widget.tabs.addTab(drawCanvas(),"Tab 2")
+        self.table_widget.tabs.addTab(drawCanvas(), "Tab 2")
 
     def removeTab(self):
-        current_tab_index = self.table_widget.tabs.currentIndex() # return current index of open tab
+        current_tab_index = self.table_widget.tabs.currentIndex()
         self.table_widget.tabs.removeTab(current_tab_index)
 
     # function to remove/close all tabs
@@ -124,19 +127,6 @@ class myGUI(QMainWindow):
             tab_count = tab_count - 1
         self.table_widget.tabs.removeTab(0)
 
-    # open new window
-    def view_data_window(self):
-        w = QDialog(self)
-        w.setWindowTitle('View Data')
-        w.resize(640, 480)
-        w.exec_()
-
-    # open new window
-    def image_files_window(self):
-        w1 = QDialog(self)
-        w1.setWindowTitle('Image files')
-        w1.resize(500, 700)
-        w1.exec()
 
     # center at application launch
     def center(self):
@@ -149,25 +139,20 @@ class myGUI(QMainWindow):
 class MyTableWidget(QWidget):
     def __init__(self, parent):
         super(QWidget, self).__init__(parent)
+
         self.layout = QVBoxLayout(self)
         
         # Initialize tab screen
         self.tabs = QTabWidget()
         self.tabs.resize(300,200)
         self.tabs.layout = QVBoxLayout(self)
+        self.tabs.setLayout(self.tabs.layout)
+        self.layout.addWidget(self.tabs)    # Add tabs to widget
 
         # Exit button to close tabs
         #tabExitButton = QPushButton("Exit", self)
         #tabExitButton.move(15,25)
         #self.tabs.layout.addWidget(tabExitButton)
-        self.tabs.setLayout(self.tabs.layout)
-        #tabExitButton.clicked.connect(self.tabs.removeTab)
-
-        # Add tabs to widget
-        self.layout.addWidget(self.tabs)
-        #self.setLayout(self.layout)
-
-    
 
 class tab_1_widget(QWidget):
     def __init__(self, parent=None):
@@ -175,7 +160,6 @@ class tab_1_widget(QWidget):
         self.main_layout = QVBoxLayout(self)
         text_label = QLabel("This is Tab 1")
         self.main_layout.addWidget(text_label)
-
 
 class drawCanvas(QtWidgets.QWidget):
     def __init__(self, parent=None):
