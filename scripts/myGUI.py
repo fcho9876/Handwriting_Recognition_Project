@@ -76,12 +76,11 @@ class myGUI(QMainWindow):
         # new menu 'view'
         viewmenu = menubar.addMenu('&View')
         view_data = QAction('View data', self)
-
         viewmenu.addAction(view_data)
-        nest_view = QMenu('Version history', self)
-        nest_version = QAction('Version number', self)
-        nest_view.addAction(nest_version)
-        viewmenu.addMenu(nest_view)
+        version_history = QMenu('Version history', self)
+        version_number = QAction('Version number', self)
+        version_history.addAction(version_number)
+        viewmenu.addMenu(version_history)
 
         # set a status bar at bottom of window
         self.statusBar().showMessage('Ready')
@@ -228,5 +227,9 @@ class drawCanvas(QtWidgets.QWidget):
     def mouseReleaseEvent(self, e):
         self.last_x = None
         self.last_y = None
+
+        # save drawn image
+        img = QtGui.QPixmap(self.canvas_label.pixmap())
+        img.save("images\loadedimage.png")
 
 
