@@ -123,7 +123,8 @@ class myGUI(QMainWindow):
         self.table_widget.tabs.addTab(QWidget(),"Tab 2")
 
     def removeTab(self):
-        self.table_widget.tabs.removeTab(0)
+        current_tab_index = self.table_widget.tabs.currentIndex() # return current index of open tab
+        self.table_widget.tabs.removeTab(current_tab_index)
 
     # function to remove/close all tabs
     def removeAllTabs(self):
