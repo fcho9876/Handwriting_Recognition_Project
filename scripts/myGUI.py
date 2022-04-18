@@ -69,6 +69,11 @@ class myGUI(QMainWindow):
         filemenu.addAction(remove_tab_menu)
         remove_tab_menu.triggered.connect(self.removeTab)
 
+        # close all tabs currently open
+        remove_all_tab_menu = QAction('Close All Tabs', self)
+        filemenu.addAction(remove_all_tab_menu)
+        remove_all_tab_menu.triggered.connect(self.removeAllTabs)
+
         # add filemenu [TOP: File] --> imageMenu [Middle: 'Import'] --> datasetMenu [Bottom: 'Import mail]
         import_subMenu = QMenu('Import', self)
         imageMenu = QAction('Image Files', self)
@@ -110,7 +115,17 @@ class myGUI(QMainWindow):
 
     def removeTab(self):
         self.table_widget.tabs.removeTab(0)
-    
+
+    # function to remove/close all tabs
+    def removeAllTabs(self):
+        tab_count = self.table_widget.tabs.count()  # returns how many tabs are open
+        while(tab_count != 0):
+            self.table_widget.tabs.removeTab(tab_count)
+            tab_count = tab_count - 1
+        self.table_widget.tabs.removeTab(0)
+
+   
+
     # open new window
     def view_data_window(self):
         w = QDialog(self)
