@@ -125,8 +125,6 @@ class myGUI(QMainWindow):
             tab_count = tab_count - 1
         self.table_widget.tabs.removeTab(0)
 
-   
-
     # open new window
     def view_data_window(self):
         w = QDialog(self)
@@ -147,12 +145,6 @@ class myGUI(QMainWindow):
         cp = QDesktopWidget().availableGeometry().center()  # get monitor information, get center position of monitor
         qr.moveCenter(cp) # set position of monitor to variable 'qr'
         self.move(qr.topLeft()) # move window to center position of monitor
-
-
-
-
-
-
 
 
 class MyTableWidget(QWidget):
@@ -193,7 +185,7 @@ class drawCanvas(QtWidgets.QWidget):
         # set up canvas to draw
         self.canvas_layout = QVBoxLayout(self)
         self.canvas_label = QLabel()
-        self.canvas = QtGui.QPixmap(300, 300)
+        self.canvas = QtGui.QPixmap(400, 400)
         self.canvas.fill(QtGui.QColor("white"))
         self.canvas_label.setPixmap(self.canvas)
         self.canvas_layout.addWidget(self.canvas_label)
@@ -202,7 +194,6 @@ class drawCanvas(QtWidgets.QWidget):
         # add button to clear canvas
         clearButton = QPushButton('Clear')
         self.canvas_layout.addWidget(clearButton)
-
         clearButton.clicked.connect(self.clear_click)
 
 
@@ -213,18 +204,24 @@ class drawCanvas(QtWidgets.QWidget):
     
     # Adapted from https://www.pythonguis.com/tutorials/bitmap-graphics/
     def mouseMoveEvent(self, e):
-        if self.last_x is None: # First event.
+        # First event
+        if self.last_x is None: 
             self.last_x = e.x()
             self.last_y = e.y()
-            return # Ignore the first time.
+            return # Ignore the first time
 
         self.painter = QtGui.QPainter(self.canvas_label.pixmap())
+
+        # set thickness of pen
+        p = self.painter.pen()
+        p.setWidth(5)
+        self.painter.setPen(p)
+
         self.painter.drawLine(self.last_x, self.last_y, e.x(), e.y())
         self.painter.end()
         self.update()
 
-
-        # Update the origin for next time.
+        # Update the origin for next time
         self.last_x = e.x()
         self.last_y = e.y()
 
