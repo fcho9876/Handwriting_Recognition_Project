@@ -8,6 +8,8 @@ from PyQt5.QtCore import pyqtSlot
 from PyQt5 import QtCore
 
 from PyQt5.QtWidgets import *
+from PyQt5 import QtCore, QtGui, QtWidgets, uic
+from PyQt5.QtCore import Qt
 
 class myGUI(QMainWindow):
 
@@ -26,18 +28,6 @@ class myGUI(QMainWindow):
 
         self.setWindowTitle('Python Project Build v1.0')
         self.setGeometry(300, 300, 500, 500) # mixture of move(x, y) and resize(width, height)
-
-        # Add button called 'exit'
-        btn = QPushButton('Exit',self)
-        self.setToolTip('This is a <b>QWidget</b> widget')
-        btn.move(100, 100)  # set position of button
-        btn.clicked.connect(QCoreApplication.instance().quit)   # link quit action to 'exit' button
-        
-        # Add another button
-        btn1 = QPushButton('Button 1', self)
-        btn1.setToolTip('This is a <b>QPushButton</b> widget')
-        btn1.move(100, 150)
-        btn1.resize(btn1.sizeHint())    
 
         # set font & size of tool tip
         QToolTip.setFont(QFont('SansSerif', 10))
@@ -117,10 +107,10 @@ class myGUI(QMainWindow):
     # to some function, this can be done using slot function
     @QtCore.pyqtSlot()
     def add_tab_1(self):
-        self.table_widget.tabs.addTab(QWidget(),"Tab 1")
+        self.table_widget.tabs.addTab(tab_1_widget(),"Tab 1")
     
     def add_tab_2(self):
-        self.table_widget.tabs.addTab(QWidget(),"Tab 2")
+        self.table_widget.tabs.addTab(drawCanvas(),"Tab 2")
 
     def removeTab(self):
         current_tab_index = self.table_widget.tabs.currentIndex() # return current index of open tab
@@ -158,6 +148,12 @@ class myGUI(QMainWindow):
         self.move(qr.topLeft()) # move window to center position of monitor
 
 
+
+
+
+
+
+
 class MyTableWidget(QWidget):
     def __init__(self, parent):
         super(QWidget, self).__init__(parent)
@@ -169,11 +165,11 @@ class MyTableWidget(QWidget):
         self.tabs.layout = QVBoxLayout(self)
 
         # Exit button to close tabs
-        tabExitButton = QPushButton("Exit", self)
-        tabExitButton.move(15,25)
-        self.tabs.layout.addWidget(tabExitButton)
+        #tabExitButton = QPushButton("Exit", self)
+        #tabExitButton.move(15,25)
+        #self.tabs.layout.addWidget(tabExitButton)
         self.tabs.setLayout(self.tabs.layout)
-        tabExitButton.clicked.connect(self.tabs.removeTab)
+        #tabExitButton.clicked.connect(self.tabs.removeTab)
 
         # Add tabs to widget
         self.layout.addWidget(self.tabs)
@@ -181,5 +177,45 @@ class MyTableWidget(QWidget):
 
     
 
-       
+class tab_1_widget(QWidget):
+    def __init__(self, parent=None):
+        super(tab_1_widget, self).__init__(parent)
+        self.main_layout = QVBoxLayout(self)
+        text_label = QLabel("This is Tab 1")
+        self.main_layout.addWidget(text_label)
+
+
+class drawCanvas(QtWidgets.QWidget):
+    def __init__(self, parent=None):
+        super(drawCanvas, self).__init__(parent)
+
+        # set up canvas to draw
+        self.canvas_layout = QVBoxLayout(self)
+        self.canvas_label = QLabel()
+        canvas = QtGui.QPixmap(300, 300)
+        canvas.fill(QtGui.QColor("white"))
+        self.canvas_label.setPixmap(canvas)
+        self.canvas_layout.addWidget(self.canvas_label)
+        self.last_x, self.last_y = None, None
+    
+    # Adapted from https://www.pythonguis.com/tutorials/bitmap-graphics/
+    def mouseMoveEvent(self, e):
+        if self.last_x is None: # First event.
+            self.last_x = e.x()
+            self.last_y = e.y()
+            return # Ignore the first time.
+
+        painter = QtGui.QPainter(self.canvas_label.pixmap())
+        painter.drawLine(self.last_x, self.last_y, e.x(), e.y())
+        painter.end()
+        self.update()
+
+        # Update the origin for next time.
+        self.last_x = e.x()
+        self.last_y = e.y()
+
+    def mouseReleaseEvent(self, e):
+        self.last_x = None
+        self.last_y = None
+
 
