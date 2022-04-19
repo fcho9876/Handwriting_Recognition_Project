@@ -169,8 +169,29 @@ class dataset_Dialog_window(QDialog):
         self.text = QLabel("This is the dataset window")
         self.layout.addWidget(self.text)
 
-        button = QPushButton('Test', self)
-        self.layout.addWidget(button)
+        self.text_box = QTextBrowser(self)
+        welcome_message = "Hello"
+        self.layout.addWidget(self.text_box)
+        self.text_box.setText(welcome_message)
+
+        instruction_text = QLabel("Select a model below")
+        self.layout.addWidget(instruction_text)
+
+        comboButton = QComboBox(self)
+        self.layout.addWidget(comboButton)
+        option_array = ["Select", "Option 1", "Option 2"]
+        comboButton.addItems(option_array)
+
+        download_button = QPushButton('Download', self)
+        self.layout.addWidget(download_button)
+
+        train_button = QPushButton('Train', self)
+        self.layout.addWidget(train_button)
+
+        cancel_button = QPushButton('Cancel')
+        self.layout.addWidget(cancel_button)
+
+
         
 
 class MyTableWidget(QWidget):
