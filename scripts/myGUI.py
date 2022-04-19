@@ -91,13 +91,20 @@ class myGUI(QMainWindow):
         self.statusBar().showMessage('Ready')
         
         # ====== Add toolbars ======
-        fileToolBar = self.addToolBar('Tab control')    # set name of toolbar
+        fileToolBar = QToolBar(self)
+        self.addToolBar(QtCore.Qt.TopToolBarArea, fileToolBar)
+        #fileToolBar = self.addToolBar('Tab control')    # set name of toolbar
         fileToolBar.addAction(remove_all_tab_menu)
         fileToolBar.addAction(remove_tab_menu)
         
-        otherToolBar = self.addToolBar('Other control')
-        otherToolBar.addAction(imageMenu) # opens new window to view images
-        otherToolBar.addAction(datasetMenu)
+        #otherToolBar = self.addToolBar('Other control')
+        fileToolBar.addAction(imageMenu) # opens new window to view images
+        fileToolBar.addAction(datasetMenu)
+
+        # Additional toolbar to left side of window
+        anotherOne = QToolBar(self)
+        self.addToolBar(QtCore.Qt.LeftToolBarArea, anotherOne)
+        anotherOne.addAction(datasetMenu)
 
         self.show()  # make visible
 
@@ -194,7 +201,6 @@ class dataset_Dialog_window(QDialog):
 
 
         
-
 class MyTableWidget(QWidget):
     def __init__(self, parent):
         super(QWidget, self).__init__(parent)
