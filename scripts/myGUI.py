@@ -10,6 +10,7 @@ from PyQt5 import QtCore
 from PyQt5.QtWidgets import *
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
 
+
 class myGUI(QMainWindow):
 
     def __init__(self):
@@ -23,6 +24,7 @@ class myGUI(QMainWindow):
         # Initialize tab widget
         self.table_widget = MyTableWidget(self)
         self.setCentralWidget(self.table_widget)
+
 
         # set font & size of tool tip
         QToolTip.setFont(QFont('SansSerif', 10))
@@ -43,6 +45,7 @@ class myGUI(QMainWindow):
         imageMenu = QAction('Image Files', self)
         imageMenu.triggered.connect(self.image_files_window)
         datasetMenu = QAction('Datasets', self)
+        datasetMenu.triggered.connect(self.dataset_window)
         import_subMenu.addAction(imageMenu)
         import_subMenu.addAction(datasetMenu)
         filemenu.addMenu(import_subMenu)
@@ -114,6 +117,12 @@ class myGUI(QMainWindow):
         new_window2.resize(300, 400)
         new_window2.exec_()
 
+    def dataset_window(self):
+        new_window3 = dataset_Dialog_window()
+        new_window3.setWindowTitle('Import Dataset')
+        new_window3.resize(400, 400)
+        new_window3.exec_()
+
     # open/close tabs
     def add_tab_1(self):
         self.table_widget.tabs.addTab(tab_1_widget(), "Tab 1")
@@ -145,6 +154,25 @@ class myGUI(QMainWindow):
         self.move(qr.topLeft()) # move window to center position of monitor
 
 
+
+# for dataset download/train window
+class dataset_Dialog_window(QDialog):
+    def __init__(self):
+        super(QDialog, self).__init__()
+        self.initUI()
+
+    def initUI(self):
+        self.layout = QVBoxLayout()
+        self.setLayout(self.layout)
+        self.setGeometry(300, 300, 300, 300)
+
+        self.text = QLabel("This is the dataset window")
+        self.layout.addWidget(self.text)
+
+        button = QPushButton('Test', self)
+        self.layout.addWidget(button)
+        
+
 class MyTableWidget(QWidget):
     def __init__(self, parent):
         super(QWidget, self).__init__(parent)
@@ -169,6 +197,12 @@ class tab_1_widget(QWidget):
         self.main_layout = QVBoxLayout(self)
         text_label = QLabel("This is Tab 1")
         self.main_layout.addWidget(text_label)
+
+# This will display the image files
+class tab_3_widget(QWidget):
+    def __init(self, parent = None):
+        super(tab_3_widget, self).__init__(parent)
+        
 
 class drawCanvas(QtWidgets.QWidget):
     def __init__(self, parent=None):
