@@ -97,6 +97,7 @@ class myGUI(QMainWindow):
         
         otherToolBar = self.addToolBar('Other control')
         otherToolBar.addAction(imageMenu) # opens new window to view images
+        otherToolBar.addAction(datasetMenu)
 
         self.show()  # make visible
 
