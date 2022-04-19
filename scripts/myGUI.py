@@ -17,7 +17,7 @@ class myGUI(QMainWindow):
         self.initUI()
 
     def initUI(self):
-        self.setWindowTitle('Python Project Build v1.0')
+        self.setWindowTitle('Python Project Build v1.0 [Personal Repo]')
         self.setGeometry(300, 300, 500, 500) # mixture of move(x, y) and resize(width, height)
 
         # Initialize tab widget
@@ -58,6 +58,11 @@ class myGUI(QMainWindow):
         filemenu.addAction(new_tab_menu2)
         new_tab_menu2.triggered.connect(self.add_tab_2)
 
+        # tab 3
+        new_tab_menu3 = QAction('Open New Tab 3', self)
+        filemenu.addAction(new_tab_menu3)
+        new_tab_menu3.triggered.connect(self.add_tab_3)
+
         # close current tab
         remove_tab_menu = QAction('Close Current Tab', self)
         filemenu.addAction(remove_tab_menu)
@@ -85,6 +90,7 @@ class myGUI(QMainWindow):
         # ====== Add toolbars ======
         fileToolBar = self.addToolBar('Tab control')    # set name of toolbar
         fileToolBar.addAction(remove_all_tab_menu)
+        fileToolBar.addAction(remove_tab_menu)
         
         otherToolBar = self.addToolBar('Other control')
         otherToolBar.addAction(imageMenu) # opens new window to view images
@@ -114,6 +120,9 @@ class myGUI(QMainWindow):
 
     def add_tab_2(self):
         self.table_widget.tabs.addTab(drawCanvas(), "Tab 2")
+
+    def add_tab_3(self):
+        self.table_widget.tabs.addTab(QWidget(), "Tab 3")
 
     def removeTab(self):
         current_tab_index = self.table_widget.tabs.currentIndex()
@@ -165,13 +174,20 @@ class drawCanvas(QtWidgets.QWidget):
     def __init__(self, parent=None):
         super(drawCanvas, self).__init__(parent)
 
-        # set up canvas to draw
+        # set up layout 
         self.canvas_layout = QVBoxLayout(self)
         self.canvas_label = QLabel()
+        
+        # add text label
+        text_label = QLabel("This is Tab 2: Drawing Canvas")
+        self.canvas_layout.addWidget(text_label)
+
+        # set up canvas
         self.canvas = QtGui.QPixmap(400, 400)
-        self.canvas.fill(QtGui.QColor("white"))
+        self.canvas.fill(QtGui.QColor('white'))
         self.canvas_label.setPixmap(self.canvas)
         self.canvas_layout.addWidget(self.canvas_label)
+
         self.last_x, self.last_y = None, None
 
         # add button to clear canvas
