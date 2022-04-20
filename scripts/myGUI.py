@@ -277,9 +277,38 @@ class tab_5_widget(QWidget):
     def __init__(self, parent = None):
         super(tab_5_widget, self).__init__(parent)
 
-        layout = QVBoxLayout(self)
+        self.layout = QVBoxLayout(self)
         text_label = QLabel("This is Tab 5: Import Datasets")
-        layout.addWidget(text_label)
+        self.layout.addWidget(text_label)
+
+        #self.layout = QVBoxLayout()
+        #self.setLayout(self.layout)
+        #self.setGeometry(300, 300, 300, 300)
+
+        self.text = QLabel("This is the dataset window")
+        self.layout.addWidget(self.text)
+
+        self.text_box = QTextBrowser(self)
+        welcome_message = "Hello"
+        self.layout.addWidget(self.text_box)
+        self.text_box.setText(welcome_message)
+
+        instruction_text = QLabel("Select a model below")
+        self.layout.addWidget(instruction_text)
+
+        comboButton = QComboBox(self)
+        self.layout.addWidget(comboButton)
+        option_array = ["Select", "Option 1", "Option 2"]
+        comboButton.addItems(option_array)
+
+        download_button = QPushButton('Download', self)
+        self.layout.addWidget(download_button)
+
+        train_button = QPushButton('Train', self)
+        self.layout.addWidget(train_button)
+
+        cancel_button = QPushButton('Cancel')
+        self.layout.addWidget(cancel_button)
 
         
 # Tab 2
