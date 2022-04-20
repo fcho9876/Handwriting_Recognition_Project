@@ -19,7 +19,7 @@ class myGUI(QMainWindow):
 
     def initUI(self):
         self.setWindowTitle('Python Project Build v1.0 [Personal Repo]')
-        self.setGeometry(300, 300, 500, 500) # mixture of move(x, y) and resize(width, height)
+        self.setGeometry(300, 300, 600, 600) # mixture of move(x, y) and resize(width, height)
 
         # Initialize tab widget
         self.table_widget = MyTableWidget(self)
@@ -101,9 +101,12 @@ class myGUI(QMainWindow):
         fileToolBar.addAction(import_dataset_menu)
 
         # Additional toolbar to left side of window
-        anotherOne = QToolBar(self)
-        self.addToolBar(QtCore.Qt.LeftToolBarArea, anotherOne)
-        anotherOne.addAction(import_dataset_menu)
+        sideToolBar = QToolBar(self)
+        self.addToolBar(QtCore.Qt.LeftToolBarArea, sideToolBar)
+        sideToolBar.addAction(import_dataset_menu)
+        sideToolBar.addAction(new_tab_menu)
+        sideToolBar.addAction(new_tab_menu2)
+        sideToolBar.addAction(new_tab_menu3)
 
         self.show()  # make visible
 
@@ -225,6 +228,7 @@ class tab_3_widget(QWidget):
         super(tab_3_widget, self).__init__(parent)
         
 
+# Tab 2
 class drawCanvas(QtWidgets.QWidget):
     def __init__(self, parent=None):
         super(drawCanvas, self).__init__(parent)
