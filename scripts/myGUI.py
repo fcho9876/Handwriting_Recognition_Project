@@ -133,18 +133,30 @@ class myGUI(QMainWindow):
         new_window3.resize(400, 400)
         new_window3.exec_()
 
-    # open/close tabs
+    # functions open/close tabs
+    # when tab is opened automatically switches to new opened tab
     def add_tab_1(self):
-        self.table_widget.tabs.addTab(tab_1_widget(), "Tab 1")
+        # saves current index our main window is open at
+        current_index = self.table_widget.tabs.currentIndex()
+        # opens new tab at that particular index
+        self.table_widget.tabs.insertTab(current_index, tab_1_widget(), "Tab 1")
+        # sets current index to the index of newly opened tab
+        self.table_widget.tabs.setCurrentIndex(current_index)
 
     def add_tab_2(self):
-        self.table_widget.tabs.addTab(drawCanvas(), "Tab 2")
+        current_index = self.table_widget.tabs.currentIndex()
+        self.table_widget.tabs.insertTab(current_index, drawCanvas(), "Tab 2")
+        self.table_widget.tabs.setCurrentIndex(current_index)
 
     def add_tab_3(self):
-        self.table_widget.tabs.addTab(tab_3_widget(), "Tab 3")
+        current_index = self.table_widget.tabs.currentIndex()
+        self.table_widget.tabs.insertTab(current_index, tab_3_widget(), "Tab 3")
+        self.table_widget.tabs.setCurrentIndex(current_index)
 
     def add_tab_4(self):
-        self.table_widget.tabs.addTab(tab_4_widget(), "Tab 4")
+        current_index = self.table_widget.tabs.currentIndex()
+        self.table_widget.tabs.insertTab(current_index, tab_4_widget(), "Tab 4")
+        self.table_widget.tabs.setCurrentIndex(current_index)
 
     def removeTab(self):
         current_tab_index = self.table_widget.tabs.currentIndex()
@@ -205,7 +217,7 @@ class dataset_Dialog_window(QDialog):
         self.layout.addWidget(cancel_button)
 
 
-        
+# main widget to control tabs
 class MyTableWidget(QWidget):
     def __init__(self, parent):
         super(QWidget, self).__init__(parent)
