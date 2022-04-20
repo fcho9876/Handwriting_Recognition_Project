@@ -325,9 +325,13 @@ class drawCanvas(QtWidgets.QWidget):
         self.canvas_layout.addWidget(text_label)
 
         # set up canvas
-        self.canvas = QtGui.QPixmap(400, 400)
+        # in event of window resize, the canvas size will adjust automatically - refer to resizeEvent()
+        canvas_resize = QtGui.QPixmap(500, 500)
+        self.canvas = canvas_resize.scaled(self.width(), self.height())
         self.canvas.fill(QtGui.QColor('white'))
+        canvas_resize.fill(QtGui.QColor('white'))
         self.canvas_label.setPixmap(self.canvas)
+        self.canvas_label.setMinimumSize(1,1)
         self.canvas_layout.addWidget(self.canvas_label)
 
         self.last_x, self.last_y = None, None
@@ -339,6 +343,14 @@ class drawCanvas(QtWidgets.QWidget):
 
 
     @QtCore.pyqtSlot()
+    # resize event of canvas
+    def resizeEvent(self, e):
+        canvas_resize = QtGui.QPixmap(500, 500)
+        canvas_resize.fill(QtGui.QColor('white'))
+        self.canvas = canvas_resize.scaled(self.width(), self.height())
+        self.canvas_label.setPixmap(self.canvas)
+        self.canvas_label.resize(self.width(), self.height())
+
     # clear canvas
     def clear_click(self):
         self.canvas_label.setPixmap(self.canvas)
@@ -357,7 +369,6 @@ class drawCanvas(QtWidgets.QWidget):
         p = self.painter.pen()
         p.setWidth(5)
         self.painter.setPen(p)
-
         self.painter.drawLine(self.last_x, self.last_y, e.x(), e.y())
         self.painter.end()
         self.update()
