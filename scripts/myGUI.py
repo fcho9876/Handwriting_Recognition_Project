@@ -25,7 +25,6 @@ class myGUI(QMainWindow):
         self.table_widget = MyTableWidget(self)
         self.setCentralWidget(self.table_widget)
 
-
         # set font & size of tool tip
         QToolTip.setFont(QFont('SansSerif', 10))
 
@@ -41,18 +40,10 @@ class myGUI(QMainWindow):
         filemenu.addAction(exitAction)
 
         # add filemenu [TOP: File] --> imageMenu [Middle: 'Import'] --> datasetMenu [Bottom: 'Import mail]
-        
-        #import_subMenu = QMenu('Import', self)
-
         import_dataset_menu = QAction('Import Datasets', self)
         filemenu.addAction(import_dataset_menu)
         import_dataset_menu.triggered.connect(self.dataset_window)
-        
-        
-        #datasetMenu = QAction('Import Datasets', self)
-        #datasetMenu.triggered.connect(self.dataset_window)
-        #import_subMenu.addAction(datasetMenu)
-        #filemenu.addMenu(import_subMenu)
+
 
         # sub menu to open/close tabs in our window
         # tab 1
@@ -81,15 +72,20 @@ class myGUI(QMainWindow):
         remove_all_tab_menu.triggered.connect(self.removeAllTabs)
 
         # Add view menu
-        viewmenu = menubar.addMenu('&View')
-        view_data = QAction('View data', self)
-        viewmenu.addAction(view_data)
-        view_data.triggered.connect(self.view_data_window)  # launch new 'View Data' window
+        # Add view training images and testing images
+        view_menu = menubar.addMenu('&View')
+        view_training_images_menu = QAction('View Training Images', self)
+        view_menu.addAction(view_training_images_menu)
+
+        view_training_images_menu.triggered.connect(self.view_data_window)
+
+        view_testing_images_menu = QAction('View Testing Images', self)
+        view_menu.addAction(view_testing_images_menu)
 
         version_history = QMenu('Version history', self)
         version_number = QAction('Version number', self)
         version_history.addAction(version_number)
-        viewmenu.addMenu(version_history)
+        view_menu.addMenu(version_history)
 
         # set a status bar at bottom of window
         self.statusBar().showMessage('Ready')
@@ -102,7 +98,6 @@ class myGUI(QMainWindow):
         fileToolBar.addAction(remove_tab_menu)
         
         #otherToolBar = self.addToolBar('Other control')
-        #fileToolBar.addAction(imageMenu) # opens new window to view images
         fileToolBar.addAction(import_dataset_menu)
 
         # Additional toolbar to left side of window
