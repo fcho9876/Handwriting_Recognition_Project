@@ -41,14 +41,18 @@ class myGUI(QMainWindow):
         filemenu.addAction(exitAction)
 
         # add filemenu [TOP: File] --> imageMenu [Middle: 'Import'] --> datasetMenu [Bottom: 'Import mail]
-        import_subMenu = QMenu('Import', self)
-        imageMenu = QAction('Image Files', self)
-        imageMenu.triggered.connect(self.image_files_window)
-        datasetMenu = QAction('Datasets', self)
-        datasetMenu.triggered.connect(self.dataset_window)
-        import_subMenu.addAction(imageMenu)
-        import_subMenu.addAction(datasetMenu)
-        filemenu.addMenu(import_subMenu)
+        
+        #import_subMenu = QMenu('Import', self)
+
+        import_dataset_menu = QAction('Import Datasets', self)
+        filemenu.addAction(import_dataset_menu)
+        import_dataset_menu.triggered.connect(self.dataset_window)
+        
+        
+        #datasetMenu = QAction('Import Datasets', self)
+        #datasetMenu.triggered.connect(self.dataset_window)
+        #import_subMenu.addAction(datasetMenu)
+        #filemenu.addMenu(import_subMenu)
 
         # sub menu to open/close tabs in our window
         # tab 1
@@ -98,13 +102,13 @@ class myGUI(QMainWindow):
         fileToolBar.addAction(remove_tab_menu)
         
         #otherToolBar = self.addToolBar('Other control')
-        fileToolBar.addAction(imageMenu) # opens new window to view images
-        fileToolBar.addAction(datasetMenu)
+        #fileToolBar.addAction(imageMenu) # opens new window to view images
+        fileToolBar.addAction(import_dataset_menu)
 
         # Additional toolbar to left side of window
         anotherOne = QToolBar(self)
         self.addToolBar(QtCore.Qt.LeftToolBarArea, anotherOne)
-        anotherOne.addAction(datasetMenu)
+        anotherOne.addAction(import_dataset_menu)
 
         self.show()  # make visible
 
@@ -118,12 +122,6 @@ class myGUI(QMainWindow):
         new_window.setWindowTitle('View Data')
         new_window.resize(300, 400)
         new_window.exec_()
-
-    def image_files_window(self):
-        new_window2 = QDialog(self)
-        new_window2.setWindowTitle('Image Files')
-        new_window2.resize(300, 400)
-        new_window2.exec_()
 
     def dataset_window(self):
         new_window3 = dataset_Dialog_window()
