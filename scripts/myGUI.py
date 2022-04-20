@@ -61,6 +61,11 @@ class myGUI(QMainWindow):
         filemenu.addAction(new_tab_menu3)
         new_tab_menu3.triggered.connect(self.add_tab_3)
 
+        # tab 4
+        new_tab_menu4 = QAction('Open New Tab 4', self)
+        filemenu.addAction(new_tab_menu4)
+        new_tab_menu4.triggered.connect(self.add_tab_4)
+
         # close current tab
         remove_tab_menu = QAction('Close Current Tab', self)
         filemenu.addAction(remove_tab_menu)
@@ -107,6 +112,7 @@ class myGUI(QMainWindow):
         sideToolBar.addAction(new_tab_menu)
         sideToolBar.addAction(new_tab_menu2)
         sideToolBar.addAction(new_tab_menu3)
+        sideToolBar.addAction(new_tab_menu4)
 
         self.show()  # make visible
 
@@ -135,7 +141,10 @@ class myGUI(QMainWindow):
         self.table_widget.tabs.addTab(drawCanvas(), "Tab 2")
 
     def add_tab_3(self):
-        self.table_widget.tabs.addTab(QWidget(), "Tab 3")
+        self.table_widget.tabs.addTab(tab_3_widget(), "Tab 3")
+
+    def add_tab_4(self):
+        self.table_widget.tabs.addTab(tab_4_widget(), "Tab 4")
 
     def removeTab(self):
         current_tab_index = self.table_widget.tabs.currentIndex()
@@ -222,10 +231,25 @@ class tab_1_widget(QWidget):
         text_label = QLabel("This is Tab 1")
         self.main_layout.addWidget(text_label)
 
-# This will display the image files
+# Tab 3 will display the View Training Images
 class tab_3_widget(QWidget):
-    def __init(self, parent = None):
+    def __init__(self, parent = None):
         super(tab_3_widget, self).__init__(parent)
+
+        layout = QVBoxLayout(self)
+        text_label = QLabel("This is Tab 3: View Training Images")
+        layout.addWidget(text_label)
+
+
+# Tab 4 will display the View Testing Images
+class tab_4_widget(QWidget):
+    def __init__(self, parent = None):
+        super(tab_4_widget, self).__init__(parent)
+
+        layout = QVBoxLayout(self)
+        text_label = QLabel("This is Tab 4: View Testing Images")
+        layout.addWidget(text_label)
+
         
 
 # Tab 2
