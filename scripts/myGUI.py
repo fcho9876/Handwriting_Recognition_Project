@@ -66,6 +66,11 @@ class myGUI(QMainWindow):
         filemenu.addAction(new_tab_menu4)
         new_tab_menu4.triggered.connect(self.add_tab_4)
 
+        # tab 5
+        new_tab_menu5 = QAction('Open New Tab 5', self)
+        filemenu.addAction(new_tab_menu5)
+        new_tab_menu5.triggered.connect(self.add_tab_5)
+
         # close current tab
         remove_tab_menu = QAction('Close Current Tab', self)
         filemenu.addAction(remove_tab_menu)
@@ -113,6 +118,7 @@ class myGUI(QMainWindow):
         sideToolBar.addAction(new_tab_menu2)
         sideToolBar.addAction(new_tab_menu3)
         sideToolBar.addAction(new_tab_menu4)
+        sideToolBar.addAction(new_tab_menu5)
 
         self.show()  # make visible
 
@@ -156,6 +162,11 @@ class myGUI(QMainWindow):
     def add_tab_4(self):
         current_index = self.table_widget.tabs.currentIndex()
         self.table_widget.tabs.insertTab(current_index, tab_4_widget(), "Tab 4")
+        self.table_widget.tabs.setCurrentIndex(current_index)
+
+    def add_tab_5(self):
+        current_index = self.table_widget.tabs.currentIndex()
+        self.table_widget.tabs.insertTab(current_index, tab_5_widget(), "Tab 5")
         self.table_widget.tabs.setCurrentIndex(current_index)
 
     def removeTab(self):
@@ -252,7 +263,6 @@ class tab_3_widget(QWidget):
         text_label = QLabel("This is Tab 3: View Training Images")
         layout.addWidget(text_label)
 
-
 # Tab 4 will display the View Testing Images
 class tab_4_widget(QWidget):
     def __init__(self, parent = None):
@@ -262,8 +272,16 @@ class tab_4_widget(QWidget):
         text_label = QLabel("This is Tab 4: View Testing Images")
         layout.addWidget(text_label)
 
-        
+# Tab 5 will display the Import Datasets
+class tab_5_widget(QWidget):
+    def __init__(self, parent = None):
+        super(tab_5_widget, self).__init__(parent)
 
+        layout = QVBoxLayout(self)
+        text_label = QLabel("This is Tab 5: Import Datasets")
+        layout.addWidget(text_label)
+
+        
 # Tab 2
 class drawCanvas(QtWidgets.QWidget):
     def __init__(self, parent=None):
