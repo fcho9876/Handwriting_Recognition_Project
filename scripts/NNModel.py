@@ -1,4 +1,3 @@
-from numpy import TooHardError
 from torch import nn, optim, cuda
 from torch.utils import data
 from torchvision import datasets, transforms

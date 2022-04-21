@@ -10,6 +10,8 @@ from PyQt5 import QtCore
 from PyQt5.QtWidgets import *
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
 
+from scripts.NNModel import NNModel
+
 
 class myGUI(QMainWindow):
 
@@ -302,13 +304,27 @@ class tab_5_widget(QWidget):
         comboButton.addItems(option_array)
 
         download_button = QPushButton('Download', self)
+        download_button.clicked.connect(self.print_to_textBrowser)  # link to signal
         self.layout.addWidget(download_button)
 
         train_button = QPushButton('Train', self)
         self.layout.addWidget(train_button)
 
         cancel_button = QPushButton('Cancel')
+        cancel_button.clicked.connect(self.cancel_textBrowser)
         self.layout.addWidget(cancel_button)
+    
+    # test functions
+    def testFunction(self):
+        print('Sucess')
+
+    def print_to_textBrowser(self):
+        download_message = "Download button has been pressed"
+        self.text_box.append(download_message)  # add line of text below previous text
+
+    def cancel_textBrowser(self):
+        cancel_message = "Process Cancelled"
+        self.text_box.setText(cancel_message)   # replace all existing text with new text
 
         
 # Tab 2
