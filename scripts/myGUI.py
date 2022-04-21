@@ -336,6 +336,22 @@ class drawCanvas(QtWidgets.QWidget):
 
         self.last_x, self.last_y = None, None
 
+        text_label = QLabel('Prediction Here: ')
+        self.canvas_layout.addWidget(text_label)
+
+        self.text_label_height = 20 # used to offset cursor
+        print(self.text_label_height)
+
+        text_box = QTextBrowser(self)
+        self.canvas_layout.addWidget(text_box)
+        prediction_text = "Prediction is: ####"
+        text_box.setText(prediction_text)
+
+        self.text_box_height = text_box.height() # used to offset cursor
+        
+        # total offset from widgets, added to y-position
+        self.total_offset = self.text_label_height + self.text_box_height
+
         # add button to clear canvas
         clearButton = QPushButton('Clear')
         self.canvas_layout.addWidget(clearButton)
@@ -354,13 +370,21 @@ class drawCanvas(QtWidgets.QWidget):
     # clear canvas
     def clear_click(self):
         self.canvas_label.setPixmap(self.canvas)
+
+    # get mouse/curosr position
+    def mousePressEvent(self, e):
+        #print(e.pos())
+        pass
     
     # Adapted from https://www.pythonguis.com/tutorials/bitmap-graphics/
     def mouseMoveEvent(self, e):
+        #cursor = QtGui.QCursor()
+        #print(cursor.pos())
+
         # First event
         if self.last_x is None: 
             self.last_x = e.x()
-            self.last_y = e.y()
+            self.last_y = e.y() + self.total_offset
             return # Ignore the first time
 
         self.painter = QtGui.QPainter(self.canvas_label.pixmap())
@@ -369,13 +393,13 @@ class drawCanvas(QtWidgets.QWidget):
         p = self.painter.pen()
         p.setWidth(5)
         self.painter.setPen(p)
-        self.painter.drawLine(self.last_x, self.last_y, e.x(), e.y())
+        self.painter.drawLine(self.last_x, self.last_y, e.x(), e.y() + self.total_offset)
         self.painter.end()
         self.update()
 
         # Update the origin for next time
         self.last_x = e.x()
-        self.last_y = e.y()
+        self.last_y = e.y()+ self.total_offset
 
     def mouseReleaseEvent(self, e):
         self.last_x = None
