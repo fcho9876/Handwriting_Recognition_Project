@@ -27,7 +27,8 @@ class NNModel():
     def downloadTestData(self):
         self.test_dataset = datasets.MNIST(root = 'MNIST_Data_Test/', 
                                             train = False, 
-                                            transform = transforms.ToTensor())
+                                            transform = transforms.ToTensor(),
+                                            download = True)
 
     # TODO Data loader
     def dataLoader(self):
