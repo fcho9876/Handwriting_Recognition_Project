@@ -303,7 +303,7 @@ class tab_5_widget(QWidget):
         option_array = ["Select", "Option 1", "Option 2"]
         comboButton.addItems(option_array)
 
-        download_button = QPushButton('Download', self)
+        download_button = QPushButton('Download MNIST Dataset', self)
         download_button.clicked.connect(self.print_to_textBrowser)  # link to signal
         self.layout.addWidget(download_button)
 
@@ -313,6 +313,8 @@ class tab_5_widget(QWidget):
         cancel_button = QPushButton('Cancel')
         cancel_button.clicked.connect(self.cancel_textBrowser)
         self.layout.addWidget(cancel_button)
+
+
     
     # test functions
     def testFunction(self):
@@ -320,11 +322,40 @@ class tab_5_widget(QWidget):
 
     def print_to_textBrowser(self):
         download_message = "Download button has been pressed"
-        self.text_box.append(download_message)  # add line of text below previous text
+        self.text_box.setText(download_message)  # add line of text below previous text
+
+        self.text_box.append("Downloading Training Dataset...")
+        #NNModel.downloadTrainingData(self)
+        self.text_box.append("Downloading Testing Dataset...")
+        #NNModel.downloadTestData(self)
+        self.text_box.append("Download Finished!")
+        progress_bar_window().exec()
+        
 
     def cancel_textBrowser(self):
         cancel_message = "Process Cancelled"
         self.text_box.setText(cancel_message)   # replace all existing text with new text
+
+# when downloading dataset
+class progress_bar_window(QDialog):
+    def __init__(self):
+        super(QDialog, self).__init__()
+        self.initUI()
+
+    def initUI(self):
+        self.layout2 = QVBoxLayout()
+        self.setLayout(self.layout2)
+        self.setGeometry(400, 400, 100, 100)
+
+        self.text = QLabel("This is progress bar window")
+        self.layout2.addWidget(self.text)
+
+        self.progress_bar = QProgressBar(self)
+        self.progress_bar.setMaximum(100)
+        self.progress_bar.setMinimum(0)
+        self.layout2.addWidget(self.progress_bar)
+
+
 
         
 # Tab 2
