@@ -11,6 +11,12 @@ class NNModel():
     def __init__(self):
         self.batch_size = 128
         self.device = 'cuda' if cuda.is_available() else 'cpu'
+        
+        # set up model
+        self.model = Net()
+        self.model.to(self.device)
+        self.criterion = nn.CrossEntropyLoss()
+        self.optimizer = optim.SGD(self.model.parameters(), lr = 0.01, momentum = 0.5)
 
     # TODO Download training data
     def downloadTrainingData(self):
@@ -34,12 +40,30 @@ class NNModel():
                                             batch_size = self.batch_size, 
                                             shuffle = False)
 
-    # TODO Define first model
-
-    # TODO Define second model
-
     # TODO Train model 
 
     # TODO Test model
+
+
+# TODO Define first model
+# Adapted from lab
+class Net(nn.Module):
+    def __init__(self):
+        self.l1 = nn.linear(784, 520)
+        self.l2 = nn.linear(520, 320)
+        self.l3 = nn.linear(320, 240)
+        self.l4 = nn.linear(240, 120)
+        self.l5 = nn.lienar(120, 10)
+
+    def forward(self, x):
+        x = x.view(-1, 784)
+        x = F.relu(self.l1(x))
+        x = F.relu(self.l2(x))
+        x = F.relu(self.l3(x))
+        x = F.relu(self.l4(x))
+        return self.l5(x)
+
+
+ # TODO Define second model
 
 
