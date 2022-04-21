@@ -40,9 +40,32 @@ class NNModel():
                                             batch_size = self.batch_size, 
                                             shuffle = False)
 
-    # TODO Train model 
+    # TODO Train model
+    def train_model(self):
+        self.model.train()
+        
+        for batch_idx, (data, target) in enumerate(self.train_loader):
+            data = data.to(self.device)
+            target = target.to(self.device)
+            output = self.model(data)
+            loss = self.criterion(output, target)
+            loss.backward()
+            self.optimizer.step()
+
 
     # TODO Test model
+    def test_model(self):
+        self.model.eval()
+        test_loss = 0
+        correct = 0
+
+        for data, target in self.test_loader:
+            data = data.to(self.device)
+            target = target.to(self.device)
+            output = self.model(data)
+            test_loss += self.criterion(output, target).item()
+            pred = output.data.max(1, keepdmin = True)[1]
+            correct += pred.eq(target.data.view_as(pred)).cpu().sum()
 
 
 # TODO Define first model
