@@ -360,6 +360,9 @@ class drawCanvas(QtWidgets.QWidget):
     def __init__(self, parent=None):
         super(drawCanvas, self).__init__(parent)
 
+        # Outer layour
+        self.layout_outer = QHBoxLayout(self)
+
         # set up layout 
         self.canvas_layout = QVBoxLayout(self)
         self.canvas_label = QLabel()
@@ -378,24 +381,6 @@ class drawCanvas(QtWidgets.QWidget):
         self.canvas_label.setMinimumSize(1,1)
         self.canvas_layout.addWidget(self.canvas_label)
 
-        self.last_x, self.last_y = None, None
-
-        text_label = QLabel('Prediction Here: ')
-        self.canvas_layout.addWidget(text_label)
-
-        self.text_label_height = 20 # used to offset cursor
-        print(self.text_label_height)
-
-        text_box = QTextBrowser(self)
-        self.canvas_layout.addWidget(text_box)
-        prediction_text = "Prediction is: ####"
-        text_box.setText(prediction_text)
-
-        self.text_box_height = text_box.height() # used to offset cursor
-        
-        # total offset from widgets, added to y-position
-        self.total_offset = self.text_label_height + self.text_box_height
-
         # add button to clear canvas
         clearButton = QPushButton('Clear')
         self.canvas_layout.addWidget(clearButton)
@@ -406,6 +391,40 @@ class drawCanvas(QtWidgets.QWidget):
         self.canvas_layout.addWidget(self.painter_size_combo)
         painter_option_array = ["Size 3", "Size 6", "Size 9"]
         self.painter_size_combo.addItems(painter_option_array)
+
+        self.last_x, self.last_y = None, None
+
+        # add to main outer layout
+        self.layout_outer.addLayout(self.canvas_layout)
+
+        # create new layout to be nested inside outer layout
+        self.canvas_layout2 = QVBoxLayout(self)
+
+        text_label = QLabel('Prediction Here: ')
+        self.canvas_layout2.addWidget(text_label)
+
+        self.text_label_height = 20 # used to offset cursor
+        print(self.text_label_height)
+
+        text_box = QTextBrowser(self)
+        self.canvas_layout2.addWidget(text_box)
+        prediction_text = "Prediction is: ####"
+        text_box.setText(prediction_text)
+        self.canvas_layout2.addSpacing(50)
+        button1 = QPushButton("Button 1", self)
+        button2 = QPushButton("Button 2", self)
+        self.canvas_layout2.addWidget(button1)
+        self.canvas_layout2.addWidget(button2)
+
+        self.text_box_height = text_box.height() # used to offset cursor
+        
+        # total offset from widgets, added to y-position
+        self.total_offset = self.text_label_height + self.text_box_height
+
+        # add second layout to main outer layout
+        self.layout_outer.addLayout(self.canvas_layout2)
+
+
 
 
     #@QtCore.pyqtSlot()
