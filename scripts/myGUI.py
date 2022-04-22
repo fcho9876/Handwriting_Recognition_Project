@@ -336,7 +336,7 @@ class tab_5_widget(QWidget):
         cancel_message = "Process Cancelled"
         self.text_box.setText(cancel_message)   # replace all existing text with new text
 
-# when downloading dataset
+# progress bar window for when downloading dataset
 class progress_bar_window(QDialog):
     def __init__(self):
         super(QDialog, self).__init__()
@@ -345,11 +345,8 @@ class progress_bar_window(QDialog):
     def initUI(self):
         self.layout2 = QVBoxLayout()
         self.setLayout(self.layout2)
-        self.setGeometry(400, 400, 100, 100)
-
-        self.text = QLabel("This is progress bar window")
-        self.layout2.addWidget(self.text)
-
+        self.setGeometry(400, 400, 300, 100)
+        self.setWindowTitle("Downloads")
         self.progress_bar = QProgressBar(self)
         self.progress_bar.setMaximum(100)
         self.progress_bar.setMinimum(0)
@@ -404,8 +401,14 @@ class drawCanvas(QtWidgets.QWidget):
         self.canvas_layout.addWidget(clearButton)
         clearButton.clicked.connect(self.clear_click)
 
+        # add paint brush thickeness selection widget
+        self.painter_size_combo = QComboBox(self)
+        self.canvas_layout.addWidget(self.painter_size_combo)
+        painter_option_array = ["Size 3", "Size 6", "Size 9"]
+        self.painter_size_combo.addItems(painter_option_array)
 
-    @QtCore.pyqtSlot()
+
+    #@QtCore.pyqtSlot()
     # resize event of canvas
     def resizeEvent(self, e):
         canvas_resize = QtGui.QPixmap(500, 500)
@@ -419,12 +422,37 @@ class drawCanvas(QtWidgets.QWidget):
         self.canvas_label.setPixmap(self.canvas)
 
     # get mouse/curosr position
-    def mousePressEvent(self, e):
+    #def mousePressEvent(self, e):
         #print(e.pos())
-        pass
+    #   pass
+
+    def check_paint_size(self, e : QtGui.QMouseEvent):
+        
+        text = self.painter_size_combo.currentText()
+
+        # checks which option is selected in the painter size selection box
+        if text == "Size 3":
+            paint_width = 3
+            self.last_x = e.x()
+            self.last_y = e.y() + self.total_offset
+        elif text == "Size 6":
+            paint_width = 6
+            self.last_x = e.x()
+            self.last_y = e.y() + self.total_offset
+        elif text == "Size 9":
+            paint_width = 9
+            self.last_x = e.x()
+            self.last_y = e.y() + self.total_offset
+        else:
+            paint_width = 3 # default size
+            self.last_x = e.x()
+            self.last_y = e.y() + self.total_offset
+        return paint_width
+    
+        
     
     # Adapted from https://www.pythonguis.com/tutorials/bitmap-graphics/
-    def mouseMoveEvent(self, e):
+    def mouseMoveEvent(self, e : QtGui.QMouseEvent):
         #cursor = QtGui.QCursor()
         #print(cursor.pos())
 
@@ -434,13 +462,27 @@ class drawCanvas(QtWidgets.QWidget):
             self.last_y = e.y() + self.total_offset
             return # Ignore the first time
 
+        #text = self.painter_size_combo.currentText()
+
+        # checks which option is selected in the painter size selection box
+
+        #paint_width = 6
+
         self.painter = QtGui.QPainter(self.canvas_label.pixmap())
 
         # set thickness of pen
-        p = self.painter.pen()
-        p.setWidth(5)
-        self.painter.setPen(p)
+        self.p = self.painter.pen()
+        #p.setWidth(5)
+        self.p.setWidth(self.check_paint_size(e))
+
+
+        #print(self.check_paint_size(e)) # for testing
+        print(self.total_offset)
+
+
+        self.painter.setPen(self.p) 
         self.painter.drawLine(self.last_x, self.last_y, e.x(), e.y() + self.total_offset)
+        #self.painter.drawLine(self.last_x, self.last_y, e.x(), e.y())
         self.painter.end()
         self.update()
 
@@ -448,7 +490,7 @@ class drawCanvas(QtWidgets.QWidget):
         self.last_x = e.x()
         self.last_y = e.y()+ self.total_offset
 
-    def mouseReleaseEvent(self, e):
+    def mouseReleaseEvent(self, e : QtGui.QMouseEvent):
         self.last_x = None
         self.last_y = None
 
