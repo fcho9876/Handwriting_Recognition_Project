@@ -40,6 +40,10 @@ class NNModel():
                                             batch_size = self.batch_size, 
                                             shuffle = False)
 
+    
+    def getTestSet(self):
+        return self.test_dataset
+
     # TODO Train model
     def train_model(self):
         self.model.train()
@@ -78,6 +82,7 @@ class Net(nn.Module):
         self.l4 = nn.linear(240, 120)
         self.l5 = nn.lienar(120, 10)
 
+
     def forward(self, x):
         x = x.view(-1, 784)
         x = F.relu(self.l1(x))
@@ -88,5 +93,3 @@ class Net(nn.Module):
 
 
  # TODO Define second model
-
-
