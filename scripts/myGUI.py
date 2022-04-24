@@ -1,14 +1,24 @@
 import sys
 from PyQt5.QtWidgets import (QMenu, QDialog, QApplication, QTabWidget, QDesktopWidget, QLabel, QWidget, QPushButton, QToolTip, QMainWindow, qApp, QAction, QGridLayout,
-                    QHBoxLayout, QVBoxLayout  )
+                    QHBoxLayout, QVBoxLayout, QScrollArea)
 from PyQt5.QtCore import QCoreApplication
 from PyQt5.QtGui import (QIcon, QFont)
 from PyQt5.Qt import QWidget, QMainWindow
-from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtCore import pyqtSlot, Qt
 from PyQt5 import QtCore
 
 from PyQt5.QtWidgets import *
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
+
+import matplotlib.pyplot as plot
+import matplotlib.pyplot as plt
+import numpy as np
+
+from torch import nn, optim, cuda
+from torch.utils import data
+from torchvision import datasets, transforms
+import torch.nn
+import torch.nn.functional as F
 
 from scripts.NNModel import NNModel
 
@@ -269,11 +279,124 @@ class tab_3_widget(QWidget):
 class tab_4_widget(QWidget):
     def __init__(self, parent = None):
         super(tab_4_widget, self).__init__(parent)
+        self.initUI()
+        #layout = QVBoxLayout(self)
+        #text_label = QLabel("This is Tab 4: View Testing Images")
+        #layout.addWidget(text_label)
 
-        layout = QVBoxLayout(self)
-        text_label = QLabel("This is Tab 4: View Testing Images")
-        layout.addWidget(text_label)
+        #self.createWidgets()
+        #self.createCentralLayout()
 
+    def initUI(self):
+
+        # OUTER BOX HOLDING EVERYTHING TOGETHER
+        self.layout_outer = QHBoxLayout()
+        self.setLayout(self.layout_outer)        
+        
+        # self.images is a grid of 100 x 100 images from the dataset
+        self.page = 0   # This is the page number
+       
+
+        # HOLD IMAGE VIEWER + NAV BUTTONS
+        self.scroll_nav_layout = QVBoxLayout()
+
+        # add scroll component
+        self.images = QWidget()
+        self.grid = QGridLayout()
+
+        # scroll settings
+        self.images.setLayout(self.grid)
+        self.scroll = QScrollArea()
+        self.scroll.setWidget(self.images)
+        self.scroll.setWidgetResizable(True)
+        self.scroll.setMinimumWidth(450)
+        self.scroll_nav_layout.addWidget(self.scroll)
+  
+        # NAVIGATE LAYOUT TO HOLD NEXT AND BACK BUTTONS
+        self.navigate_layout = QHBoxLayout()
+        back_button = QPushButton("Previous")
+        next_button =  QPushButton("Next")
+
+        self.navigate_layout.addWidget(back_button)
+        self.navigate_layout.addWidget(next_button)
+        back_button.clicked.connect(self.load_prev_page)
+        next_button.clicked.connect(self.load_next_page)
+        
+        # RIGHT SIDE OF OVERALL LAYOUT
+        # Page counter
+        self.right_layout = QVBoxLayout()
+        text_box = QTextBrowser(self)
+        text_message = "Welcome to MNIST Dataset image viewer"
+        text_box.setText(text_message)
+        self.right_layout.addWidget(text_box)
+
+        stats_button = QPushButton("See Statistics", self)
+        self.right_layout.addWidget(stats_button)
+
+        self.right_layout.addSpacing(200)
+
+        self.page_num_box = QTextBrowser(self)
+        self.page_num_box.setMaximumHeight(30)
+        self.page_number = str(self.page)
+        self.page_num_box.setText("Page: "+self.page_number)
+        self.right_layout.addWidget(self.page_num_box)
+
+        ####### CONFIGURE LAYOUTS ######
+        # add grid and nav to scroll_nav_layout
+        self.scroll_nav_layout.addLayout(self.grid)
+        self.scroll_nav_layout.addLayout(self.navigate_layout)
+
+        # add above to outer grid
+        self.layout_outer.addLayout(self.scroll_nav_layout)
+        self.layout_outer.addLayout(self.right_layout)
+
+        self.download_Data()
+        self.load_dataset_images()
+
+
+    ###### FOR TESTING ONLY, REMOVE DURING REFACTOR ######
+    def download_Data(self):
+        self.train_dataset = datasets.MNIST(root = 'MNIST_Data_Train/', 
+                                            #split = 'byclass',
+                                            train = True, 
+                                            transform = transforms.ToTensor(), 
+                                            download = True)
+
+    ###### Functions for grid image control ######
+    def load_next_page(self):
+            self.page = self.page + 1
+            self.load_dataset_images()
+            self.page_num_box.setText("Page: "+str(self.page))
+
+    def load_prev_page(self):
+        # ensure page number is not negative
+        if self.page > 0:
+            self.page = self.page - 1
+            self.load_dataset_images()
+            self.page_num_box.setText("Page: "+str(self.page))
+
+    # use nested for loop to iterate each row and column of our image grid and add a pixmap image
+    def load_dataset_images(self):
+            for row in range(0,50):    # range(0,50) number of rows per page --> 50 rows
+                for col in range(0,4):    # range(0,4) number of columns per page --> 4 columns
+
+                    # each image grid will display 4 x 50 = 200 images
+                    label = QLabel()
+
+                    # max images per grid = 50 * 5 = 250
+                    imgArr = np.squeeze(self.train_dataset[row+col+200*self.page][0])
+
+                    # save as grayscale images
+                    plot.imsave("images\\temp_grid_image.png", imgArr, cmap='gray')
+                    img = QtGui.QPixmap("images\\temp_grid_image.png")
+                    
+                    # upscale the images
+                    img2 = img.scaled(100, 100, Qt.KeepAspectRatio, Qt.FastTransformation)
+
+                    label.setPixmap(img2)
+                    self.grid.addWidget(label, row, col)
+                
+    
 # Tab 5 will display the Import Datasets
 class tab_5_widget(QWidget):
     def __init__(self, parent = None):
@@ -330,6 +453,7 @@ class tab_5_widget(QWidget):
         #NNModel.downloadTestData(self)
         self.text_box.append("Download Finished!")
         progress_bar_window().exec()
+        #NNModel().downloadTestData()
         
 
     def cancel_textBrowser(self):
