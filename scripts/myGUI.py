@@ -1,4 +1,3 @@
-from pyexpat import model
 import sys
 from PyQt5.QtWidgets import (QMenu, QDialog, QApplication, QTabWidget, QDesktopWidget, QLabel, QWidget, QPushButton, QToolTip, QMainWindow, qApp, QAction, QGridLayout,
                     QHBoxLayout, QVBoxLayout, QScrollArea)
@@ -198,10 +197,6 @@ class myGUI(QMainWindow):
             tab_count = tab_count - 1
         self.table_widget.tabs.removeTab(0)
 
-    def getModel(self):
-        nnmodel = self.nnmodel
-        return nnmodel
-
     # center at application launch
     def center(self):
         qr = self.frameGeometry()   # get window information
@@ -246,8 +241,6 @@ class dataset_Dialog_window(QDialog):
 
         cancel_button = QPushButton('Cancel')
         self.layout.addWidget(cancel_button)
-
-
 
 
 # main widget to control tabs
@@ -368,14 +361,14 @@ class tab_4_widget(QWidget):
     def load_next_page(self):
             self.page = self.page + 1
             self.load_dataset_images()
-            self.page_num_box.setText("Page: "+str(self.page))
+            self.page_num_box.setText("Page: "+ str(self.page))
 
     def load_prev_page(self):
         # ensure page number is not negative
         if self.page > 0:
             self.page = self.page - 1
             self.load_dataset_images()
-            self.page_num_box.setText("Page: "+str(self.page))
+            self.page_num_box.setText("Page: "+ str(self.page))
 
     # use nested for loop to iterate each row and column of our image grid and add a pixmap image
     def load_dataset_images(self):
@@ -386,16 +379,16 @@ class tab_4_widget(QWidget):
                     label = QLabel()
 
                     # max images per grid = 50 * 5 = 250
-                    imgArr = np.squeeze(nnmodel.train_dataset[row+col+200*self.page][0])
+                    image_array = np.squeeze(nnmodel.train_dataset[row+col+200*self.page][0])
 
                     # save as grayscale images
-                    plot.imsave("images\\temp_grid_image.png", imgArr, cmap='gray')
-                    img = QtGui.QPixmap("images\\temp_grid_image.png")
+                    plot.imsave("images\\temp_grid_image.png", image_array, cmap='gray')
+                    saved_image = QtGui.QPixmap("images\\temp_grid_image.png")
                     
                     # upscale the images
-                    img2 = img.scaled(100, 100, Qt.KeepAspectRatio, Qt.FastTransformation)
+                    saved_image_scaled = saved_image.scaled(100, 100, Qt.KeepAspectRatio, Qt.FastTransformation)
 
-                    label.setPixmap(img2)
+                    label.setPixmap(saved_image_scaled)
                     self.grid.addWidget(label, row, col)
                 
     
