@@ -1,3 +1,4 @@
+from pyexpat import model
 import sys
 from PyQt5.QtWidgets import (QMenu, QDialog, QApplication, QTabWidget, QDesktopWidget, QLabel, QWidget, QPushButton, QToolTip, QMainWindow, qApp, QAction, QGridLayout,
                     QHBoxLayout, QVBoxLayout, QScrollArea)
@@ -32,6 +33,10 @@ class myGUI(QMainWindow):
     def initUI(self):
         self.setWindowTitle('Python Project Build v1.0 [Personal Repo]')
         self.setGeometry(300, 300, 600, 600) # mixture of move(x, y) and resize(width, height)
+
+        # create instance of our NNModel Class to download dataset 
+        global nnmodel
+        nnmodel = NNModel()
 
         # Initialize tab widget
         self.table_widget = MyTableWidget(self)
@@ -193,6 +198,9 @@ class myGUI(QMainWindow):
             tab_count = tab_count - 1
         self.table_widget.tabs.removeTab(0)
 
+    def getModel(self):
+        nnmodel = self.nnmodel
+        return nnmodel
 
     # center at application launch
     def center(self):
@@ -238,6 +246,8 @@ class dataset_Dialog_window(QDialog):
 
         cancel_button = QPushButton('Cancel')
         self.layout.addWidget(cancel_button)
+
+
 
 
 # main widget to control tabs
@@ -350,17 +360,9 @@ class tab_4_widget(QWidget):
         self.layout_outer.addLayout(self.scroll_nav_layout)
         self.layout_outer.addLayout(self.right_layout)
 
-        self.download_Data()
         self.load_dataset_images()
 
 
-    ###### FOR TESTING ONLY, REMOVE DURING REFACTOR ######
-    def download_Data(self):
-        self.train_dataset = datasets.MNIST(root = 'MNIST_Data_Train/', 
-                                            #split = 'byclass',
-                                            train = True, 
-                                            transform = transforms.ToTensor(), 
-                                            download = True)
 
     ###### Functions for grid image control ######
     def load_next_page(self):
@@ -384,7 +386,7 @@ class tab_4_widget(QWidget):
                     label = QLabel()
 
                     # max images per grid = 50 * 5 = 250
-                    imgArr = np.squeeze(self.train_dataset[row+col+200*self.page][0])
+                    imgArr = np.squeeze(nnmodel.train_dataset[row+col+200*self.page][0])
 
                     # save as grayscale images
                     plot.imsave("images\\temp_grid_image.png", imgArr, cmap='gray')
@@ -443,9 +445,12 @@ class tab_5_widget(QWidget):
     def testFunction(self):
         print('Sucess')
 
+    # in the event the download MNIST dataset has been pressed
     def print_to_textBrowser(self):
         download_message = "Download button has been pressed"
         self.text_box.setText(download_message)  # add line of text below previous text
+
+        nnmodel.downloadTrainingData()
 
         self.text_box.append("Downloading Training Dataset...")
         #NNModel.downloadTrainingData(self)
