@@ -76,11 +76,12 @@ class NNModel():
 # Adapted from lab
 class Net(nn.Module):
     def __init__(self):
-        self.l1 = nn.linear(784, 520)
-        self.l2 = nn.linear(520, 320)
-        self.l3 = nn.linear(320, 240)
-        self.l4 = nn.linear(240, 120)
-        self.l5 = nn.lienar(120, 10)
+        super(Net, self).__init__()
+        self.l1 = nn.Linear(784, 520)
+        self.l2 = nn.Linear(520, 320)
+        self.l3 = nn.Linear(320, 240)
+        self.l4 = nn.Linear(240, 120)
+        self.l5 = nn.Linear(120, 10)
 
 
     def forward(self, x):
