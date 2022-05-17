@@ -397,116 +397,6 @@ class tab_2_widget(QWidget):
         imgage.save("images\loadedimage.png")
 
 
-
-# Tab 3 will display the View Training Images
-class tab_3_widget(QWidget):
-    def __init__(self, parent = None):
-        super(tab_3_widget, self).__init__(parent)
-        self.initUI()
-
-    def initUI(self):
-
-        # OUTER BOX HOLDING EVERYTHING TOGETHER
-        self.layout_outer = QHBoxLayout()
-        self.setLayout(self.layout_outer)        
-        
-        # self.images is a grid of 100 x 100 images from the dataset
-        self.page = 0   # This is the page number
-       
-        # HOLD IMAGE VIEWER + NAV BUTTONS
-        self.scroll_nav_layout = QVBoxLayout()
-
-        # add scroll component
-        self.images = QWidget()
-        self.grid = QGridLayout()
-
-        # scroll settings
-        self.images.setLayout(self.grid)
-        self.scroll = QScrollArea()
-        self.scroll.setWidget(self.images)
-        self.scroll.setWidgetResizable(True)
-        self.scroll.setMinimumWidth(450)
-        self.scroll_nav_layout.addWidget(self.scroll)
-  
-        # NAVIGATE LAYOUT TO HOLD NEXT AND BACK BUTTONS
-        self.navigate_layout = QHBoxLayout()
-        back_button = QPushButton("Previous")
-        next_button =  QPushButton("Next")
-
-        self.navigate_layout.addWidget(back_button)
-        self.navigate_layout.addWidget(next_button)
-        back_button.clicked.connect(self.load_prev_page)
-        next_button.clicked.connect(self.load_next_page)
-        
-        # RIGHT SIDE OF OVERALL LAYOUT
-        # Page counter
-        self.right_layout = QVBoxLayout()
-        text_box = QTextBrowser(self)
-        text_message = "Welcome to MNIST Dataset Training image viewer"
-        text_box.setText(text_message)
-        self.right_layout.addWidget(text_box)
-
-        stats_button = QPushButton("See Statistics", self)
-        self.right_layout.addWidget(stats_button)
-
-        self.right_layout.addSpacing(200)
-
-        self.page_num_box = QTextBrowser(self)
-        self.page_num_box.setMaximumHeight(30)
-        self.page_number = str(self.page)
-        self.page_num_box.setText("Page: "+self.page_number)
-        self.right_layout.addWidget(self.page_num_box)
-
-        ####### CONFIGURE LAYOUTS ######
-        # add grid and nav to scroll_nav_layout
-        self.scroll_nav_layout.addLayout(self.grid)
-        self.scroll_nav_layout.addLayout(self.navigate_layout)
-
-        # add above to outer grid
-        self.layout_outer.addLayout(self.scroll_nav_layout)
-        self.layout_outer.addLayout(self.right_layout)
-
-        self.load_dataset_images()
-
-    ###### Functions for grid image control ######
-    def load_next_page(self):
-            self.page = self.page + 1
-            self.load_dataset_images()
-            self.page_num_box.setText("Page: "+ str(self.page))
-
-    def load_prev_page(self):
-        # ensure page number is not negative
-        if self.page > 0:
-            self.page = self.page - 1
-            self.load_dataset_images()
-            self.page_num_box.setText("Page: "+ str(self.page))
-
-    # use nested for loop to iterate each row and column of our image grid and add a pixmap image
-    def load_dataset_images(self):
-            for row in range(0,50):    # range(0,50) number of rows per page --> 50 rows
-                for col in range(0,4):    # range(0,4) number of columns per page --> 4 columns
-
-                    # each image grid will display 4 x 50 = 200 images
-                    label = QLabel()
-
-                    #value = ['1']
-                    #value_iter = iter(nnmodel.train_dataset)
-                    #current_value = next(value_iter)
-                    #print(current_value) 
-
-                    # max images per grid = 50 * 4 = 200
-                    image_array = np.squeeze(nnmodel.train_dataset[10*row+col+200*self.page][0])
-
-                    # save as grayscale images
-                    plot.imsave("images\\temp_grid_image.png", image_array, cmap='gray')
-                    saved_image = QtGui.QPixmap("images\\temp_grid_image.png")
-                    
-                    # upscale the images
-                    saved_image_scaled = saved_image.scaled(100, 100, Qt.KeepAspectRatio, Qt.FastTransformation)
-
-                    label.setPixmap(saved_image_scaled)
-                    self.grid.addWidget(label, row, col)
-
 # Tab 3 widget for importing and training dataset
 class tab_3_widget(QWidget):
         def __init__(self):
@@ -786,84 +676,134 @@ class worker(QObject):
             self.finished.emit()
                 
     
-# Tab 5 will display the Import Datasets
-class tab_5_widget(QWidget):
-    def __init__(self, parent = None):
-        super(tab_5_widget, self).__init__(parent)
-
-        self.layout = QVBoxLayout(self)
-        text_label = QLabel("This is Tab 5: Import Datasets")
-        self.layout.addWidget(text_label)
-
-        #self.layout = QVBoxLayout()
-        #self.setLayout(self.layout)
-        #self.setGeometry(300, 300, 300, 300)
-
-        self.text = QLabel("This is the dataset window")
-        self.layout.addWidget(self.text)
-
-        self.text_box = QTextBrowser(self)
-        welcome_message = "Hello"
-        self.layout.addWidget(self.text_box)
-        self.text_box.setText(welcome_message)
-
-        instruction_text = QLabel("Select a model below")
-        self.layout.addWidget(instruction_text)
-
-        comboButton = QComboBox(self)
-        self.layout.addWidget(comboButton)
-        option_array = ["Select", "Option 1", "Option 2"]
-        comboButton.addItems(option_array)
-
-        download_button = QPushButton('Download MNIST Dataset', self)
-        download_button.clicked.connect(self.print_to_textBrowser)  # link to signal
-        self.layout.addWidget(download_button)
-
-        train_button = QPushButton('Train', self)
-        self.layout.addWidget(train_button)
-
-        cancel_button = QPushButton('Cancel')
-        cancel_button.clicked.connect(self.cancel_textBrowser)
-        self.layout.addWidget(cancel_button)
-
-
-    
-    # test functions
-    def testFunction(self):
-        print('Sucess')
-
-    # in the event the download MNIST dataset has been pressed
-    def print_to_textBrowser(self):
-        download_message = "Download button has been pressed"
-        self.text_box.setText(download_message)  # add line of text below previous text
-        nnmodel.downloadTrainingData()
-        self.text_box.append("Downloading Training Dataset...")
-        nnmodel.downloadTestData()
-        self.text_box.append("Downloading Testing Dataset...")
-        self.text_box.append("Download Finished!")
-        progress_bar_window().exec()
-        
-
-    def cancel_textBrowser(self):
-        cancel_message = "Process Cancelled"
-        self.text_box.setText(cancel_message)   # replace all existing text with new text
-
-# progress bar window for when downloading dataset
-class progress_bar_window(QDialog):
+# Tab 4 widget for viewing training images
+class tab_4_widget(QWidget):
     def __init__(self):
-        super(QDialog, self).__init__()
+        super(tab_4_widget, self).__init__()
         self.initUI()
 
     def initUI(self):
-        self.layout2 = QVBoxLayout()
-        self.setLayout(self.layout2)
-        self.setGeometry(400, 400, 300, 100)
-        self.setWindowTitle("Downloads")
-        self.progress_bar = QProgressBar(self)
-        self.progress_bar.setMaximum(100)
-        self.progress_bar.setMinimum(0)
-        self.layout2.addWidget(self.progress_bar)
 
+        # Outer layout holds every other layout together
+        self.layout_outer = QHBoxLayout()
+        self.setLayout(self.layout_outer)  
+
+        # initialize page number
+        self.page_number = 0      
+        
+        # This layout holds the image display grid
+        self.images_layout = QVBoxLayout()
+
+        # add scroll component
+        self.images_widget = QWidget()
+        self.image_grid = QGridLayout()
+
+        # configure scroll settings
+        self.images_widget.setLayout(self.image_grid)
+        self.scroll = QScrollArea()
+        self.scroll.setWidget(self.images_widget)
+        self.scroll.setWidgetResizable(True)
+        self.scroll.setMinimumWidth(450 )
+        self.images_layout.addWidget(self.scroll)
+
+        # add layout to hold next/back buttons
+        self.navigate_layout = QHBoxLayout()
+        back_button = QPushButton("Previous", self)
+        next_button = QPushButton("Next", self)
+
+        # add widgets to layout
+        self.navigate_layout.addWidget(back_button)
+        self.navigate_layout.addWidget(next_button)
+
+        # connect to signal
+        back_button.clicked.connect(self.load_back_page)
+        next_button.clicked.connect(self.load_next_page)
+
+        # Right side of overall layout setup
+        self.right_layout = QVBoxLayout()
+        self.text_box = QTextBrowser(self)
+        text_message = "EMNIST Dataset Train Image Viewer"
+        self.text_box.setText(text_message)
+        self.text_box.append(" ")
+        self.text_box.append("200 Images loaded per page")
+        self.right_layout.addWidget(self.text_box)
+
+        # simple stats button
+        stats_button = QPushButton("See Statistics", self)
+        self.right_layout.addWidget(stats_button)
+        # TODO connect stats_button signal
+
+        # display current page number
+        self.page_num_box = QTextBrowser(self)
+        self.page_num_box.setMaximumHeight(30)
+        self.page_num_box.setText("Page: " + str(self.page_number))
+        self.right_layout.addWidget(self.page_num_box)
+  
+        #====== CONFIGURE LAYOUTS ======
+        # add image grid to the image layout
+        self.images_layout.addLayout(self.image_grid)
+        self.images_layout.addLayout(self.navigate_layout)
+
+        # add above to outer layout containing everything
+        self.layout_outer.addLayout(self.images_layout)
+        self.layout_outer.addLayout(self.right_layout)
+
+        self.load_dataset_images()
+
+
+    #====== CONFIGURE FUNCTIONS ======
+    def load_next_page(self):
+            self.page_number = self.page_number + 1
+            self.load_dataset_images()
+            self.page_num_box.setText("Page: "+ str(self.page_number))  
+            self.scroll.verticalScrollBar().setValue(0)     # reset scroll to top
+
+    def load_back_page(self):
+        # ensure page number is not negative
+        if self.page_number > 0:
+            self.page_number = self.page_number - 1
+            self.load_dataset_images()
+            self.page_num_box.setText("Page: "+ str(self.page_number))
+            self.scroll.verticalScrollBar().setValue(0)     # reset scroll to top
+
+    # use nested for loop to iterate each row and column of our image grid and add a pixmap image
+    def load_dataset_images(self):
+
+        try:
+            # set up row and columns of our image grid
+            self.max_row = 50
+            self.max_col = 4
+            self.max_images = self.max_row * self.max_col
+
+            for row in range(0, self.max_row):    # range(0,50) number of rows per page --> 50 rows
+                for col in range(0, self.max_col):    # range(0,4) number of columns per page --> 4 columns
+
+                    # each image grid will display 4 x 50 = 200 images
+                    label = QLabel()
+
+                    self.dataset_index = 10*row + col + self.max_images*self.page_number
+
+                    # use squeeze to remove all dimensions of length 1
+                    processed_image = np.squeeze(nnmodel.train_dataset[self.dataset_index][0])
+                    processed_image = np.fliplr(processed_image)
+                    processed_image = np.rot90(processed_image)
+
+                    file_name = './images/temp_grid_image.png'
+                    plot.imsave(file_name, processed_image, cmap = 'gray')
+
+                    saved_image = QtGui.QPixmap(file_name)
+
+                    # upscale the image for better presentation
+                    saved_image_scaled = saved_image.scaled(100, 100, Qt.KeepAspectRatio, Qt.FastTransformation)
+
+                    label.setPixmap(saved_image_scaled)
+                    self.image_grid.addWidget(label, row, col) 
+
+        except AttributeError:
+            print("EMNIST Dataset missing!")
+            self.text_box.setText('EMNIST Dataset missing!')
+            self.text_box.append(' ')
+            self.text_box.append('Please download EMNIST Dataset and try again.')
 
 
         
