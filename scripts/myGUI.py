@@ -1,24 +1,19 @@
 import sys
-from PyQt5.QtWidgets import (QMenu, QDialog, QApplication, QTabWidget, QDesktopWidget, QLabel, QWidget, QPushButton, QToolTip, QMainWindow, qApp, QAction, QGridLayout,
-                    QHBoxLayout, QVBoxLayout, QScrollArea)
-from PyQt5.QtCore import QCoreApplication
-from PyQt5.QtGui import (QIcon, QFont)
-from PyQt5.Qt import QWidget, QMainWindow
-from PyQt5.QtCore import pyqtSlot, Qt
-from PyQt5 import QtCore
-
 from PyQt5.QtWidgets import *
-from PyQt5 import QtCore, QtGui, QtWidgets, uic
+from PyQt5.QtCore import *
+from PyQt5 import QtGui
+from PyQt5.QtGui import *
+
+import torch
 
 import matplotlib.pyplot as plot
 import matplotlib.pyplot as plt
 import numpy as np
+from PIL import Image, ImageOps
 
-from torch import nn, optim, cuda
-from torch.utils import data
-from torchvision import datasets, transforms
-import torch.nn
-import torch.nn.functional as F
+from PyQt5.QtCore import QObject, QThread, pyqtSignal
+import time
+import os
 
 from scripts.NNModel import NNModel
 
@@ -55,10 +50,13 @@ class myGUI(QMainWindow):
         filemenu = menubar.addMenu('&File') # &File is simpler version of setShortcut() -> 'Alt + F'
         filemenu.addAction(exitAction)
 
-        # add filemenu [TOP: File] --> imageMenu [Middle: 'Import'] --> datasetMenu [Bottom: 'Import mail]
-        import_dataset_menu = QAction('Import Datasets', self)
-        filemenu.addAction(import_dataset_menu)
-        import_dataset_menu.triggered.connect(self.dataset_window)
+        # Add view menu
+        viewmenu = menubar.addMenu('&View')
+        # Version History
+        version_history = QMenu('Version history', self)
+        version_number = QAction('Version 1.1', self)
+        version_history.addAction(version_number)
+        viewmenu.addMenu(version_history)
 
 
         # sub menu to open/close tabs in our window
@@ -118,18 +116,14 @@ class myGUI(QMainWindow):
         
         # ====== Add toolbars ======
         fileToolBar = QToolBar(self)
-        self.addToolBar(QtCore.Qt.TopToolBarArea, fileToolBar)
+        self.addToolBar(Qt.TopToolBarArea, fileToolBar)
         #fileToolBar = self.addToolBar('Tab control')    # set name of toolbar
         fileToolBar.addAction(remove_all_tab_menu)
         fileToolBar.addAction(remove_tab_menu)
         
-        #otherToolBar = self.addToolBar('Other control')
-        fileToolBar.addAction(import_dataset_menu)
-
         # Additional toolbar to left side of window
         sideToolBar = QToolBar(self)
-        self.addToolBar(QtCore.Qt.LeftToolBarArea, sideToolBar)
-        sideToolBar.addAction(import_dataset_menu)
+        self.addToolBar(Qt.LeftToolBarArea, sideToolBar)
         sideToolBar.addAction(new_tab_menu)
         sideToolBar.addAction(new_tab_menu2)
         sideToolBar.addAction(new_tab_menu3)
@@ -167,7 +161,7 @@ class myGUI(QMainWindow):
 
     def add_tab_2(self):
         current_index = self.table_widget.tabs.currentIndex()
-        self.table_widget.tabs.insertTab(current_index, drawCanvas(), "Tab 2")
+        self.table_widget.tabs.insertTab(current_index, tab_2_widget(), "Tab 2")
         self.table_widget.tabs.setCurrentIndex(current_index)
 
     def add_tab_3(self):
@@ -360,8 +354,13 @@ class tab_3_widget(QWidget):
                     # each image grid will display 4 x 50 = 200 images
                     label = QLabel()
 
-                    # max images per grid = 50 * 5 = 250
-                    image_array = np.squeeze(nnmodel.train_dataset[row+col+200*self.page][0])
+                    #value = ['1']
+                    #value_iter = iter(nnmodel.train_dataset)
+                    #current_value = next(value_iter)
+                    #print(current_value) 
+
+                    # max images per grid = 50 * 4 = 200
+                    image_array = np.squeeze(nnmodel.train_dataset[10*row+col+200*self.page][0])
 
                     # save as grayscale images
                     plot.imsave("images\\temp_grid_image.png", image_array, cmap='gray')
@@ -560,9 +559,9 @@ class progress_bar_window(QDialog):
 
         
 # Tab 2
-class drawCanvas(QtWidgets.QWidget):
+class tab_2_widget(QWidget):
     def __init__(self, parent=None):
-        super(drawCanvas, self).__init__(parent)
+        super(tab_2_widget, self).__init__(parent)
 
         # Outer layour
         self.layout_outer = QHBoxLayout(self)
