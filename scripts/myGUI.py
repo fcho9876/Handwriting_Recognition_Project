@@ -149,7 +149,7 @@ class myGUI(QMainWindow):
         new_window3.resize(400, 400)
         new_window3.exec_()
 
-    # functions open/close tabs
+    # ====== open/close tabs ======
     # when tab is opened automatically switches to new opened tab
     def add_tab_1(self):
         # saves current index our main window is open at
@@ -199,44 +199,6 @@ class myGUI(QMainWindow):
         self.move(qr.topLeft()) # move window to center position of monitor
 
 
-
-# for dataset download/train window
-class dataset_Dialog_window(QDialog):
-    def __init__(self):
-        super(QDialog, self).__init__()
-        self.initUI()
-
-    def initUI(self):
-        self.layout = QVBoxLayout()
-        self.setLayout(self.layout)
-        self.setGeometry(300, 300, 300, 300)
-
-        self.text = QLabel("This is the dataset window")
-        self.layout.addWidget(self.text)
-
-        self.text_box = QTextBrowser(self)
-        welcome_message = "Hello"
-        self.layout.addWidget(self.text_box)
-        self.text_box.setText(welcome_message)
-
-        instruction_text = QLabel("Select a model below")
-        self.layout.addWidget(instruction_text)
-
-        comboButton = QComboBox(self)
-        self.layout.addWidget(comboButton)
-        option_array = ["Select", "Option 1", "Option 2"]
-        comboButton.addItems(option_array)
-
-        download_button = QPushButton('Download', self)
-        self.layout.addWidget(download_button)
-
-        train_button = QPushButton('Train', self)
-        self.layout.addWidget(train_button)
-
-        cancel_button = QPushButton('Cancel')
-        self.layout.addWidget(cancel_button)
-
-
 # main widget to control tabs
 class MyTableWidget(QWidget):
     def __init__(self, parent):
@@ -251,17 +213,190 @@ class MyTableWidget(QWidget):
         self.tabs.setLayout(self.tabs.layout)
         self.layout.addWidget(self.tabs)    # Add tabs to widget
 
-        # Exit button to close tabs
-        #tabExitButton = QPushButton("Exit", self)
-        #tabExitButton.move(15,25)
-        #self.tabs.layout.addWidget(tabExitButton)
-
+# Tab 1 widget for welcome information
 class tab_1_widget(QWidget):
     def __init__(self, parent=None):
         super(tab_1_widget, self).__init__(parent)
         self.main_layout = QVBoxLayout(self)
         text_label = QLabel("This is Tab 1")
         self.main_layout.addWidget(text_label)
+
+# Tab 2 widget for drawing canvas
+class tab_2_widget(QWidget):
+    def __init__(self):
+        super(tab_2_widget, self).__init__()
+
+        # upper layout
+        upper_layout = QHBoxLayout(self)
+
+        # set up layout for canvas 
+        self.canvas_layout = QVBoxLayout(self)
+        self.canvas_label = QLabel()
+        text_label = QLabel("This is Tab 2: Drawing Canvas")
+        self.canvas_layout.addWidget(text_label)
+        self.canvas = QtGui.QPixmap(400, 400)
+        self.canvas.fill(QtGui.QColor('white'))
+        self.canvas_label.setPixmap(self.canvas)
+        self.canvas_layout.addWidget(self.canvas_label)
+
+        # Test layout
+        self.test_layout = QVBoxLayout(self)
+        self.button1 = QPushButton("Load Model", self)
+        #self.button1.clicked.connect(self.load_selected_model)
+        self.button2 = QPushButton("Predict", self)
+
+        #self.button2.clicked.connect(self.predict_show)
+
+        # Set up text for text browser
+        prediction_text = "Prediction: "
+        Accuracy_text = "Confidence: "
+        self.selected_model_text = "N/A"
+
+        # Text browsor for currently loaded model
+        self.set_model_browser = QTextBrowser(self)
+        self.set_model_browser.setText("Model loaded: " + self.selected_model_text)
+        self.set_model_browser.setFont(QFont('Serif', 10))
+        self.set_model_browser.setMaximumHeight(50)
+
+        # Text browser for prediction
+        self.prediction_browser = QTextBrowser(self)
+        self.prediction_browser.append(prediction_text)
+        self.prediction_browser.setFont(QFont('Serif', 10))
+        self.prediction_browser.setMaximumHeight(50)
+
+        # Test browser for accuracy
+        self.accuracy_browser = QTextBrowser(self)
+        self.accuracy_browser.setText(Accuracy_text)
+        self.accuracy_browser.setFont(QFont('Serif', 10))
+        self.accuracy_browser.setMaximumHeight(50)
+
+        # Add combobox to choose model
+        self.model_combo = QComboBox(self)
+        model_option_array = ["Select", "Default_Net", "CNN_Net", "ResNet_Net", "Custom_Net"]
+        self.model_combo.addItems(model_option_array)
+
+        # Layout setup
+        self.test_layout.addSpacing(50)
+        self.test_layout.addWidget(self.set_model_browser)
+        self.test_layout.addSpacing(10)
+        self.test_layout.addWidget(self.prediction_browser)
+        self.test_layout.addSpacing(10)
+        self.test_layout.addWidget(self.accuracy_browser)
+        self.test_layout.addWidget(self.model_combo)
+        self.test_layout.addWidget(self.button1)
+        self.test_layout.addWidget(self.button2)
+        self.test_layout.addSpacing(150)
+
+        # add nested layout
+        upper_layout.addLayout(self.canvas_layout)
+        #upper_layout.addStretch()   # prevents button from stretching when window size is changed
+        upper_layout.addLayout(self.test_layout)
+        
+        
+        self.last_x = None
+        self.last_y = None
+
+        # add clear button to remove drawn image from canvas
+        clearButton = QPushButton('Clear')
+        self.canvas_layout.addWidget(clearButton)
+        clearButton.clicked.connect(self.clear_click)
+
+        # add paint brush thickeness selection widget
+        self.painter_size_combo = QComboBox(self)
+        self.canvas_layout.addWidget(self.painter_size_combo)
+        painter_option_array = ["Size 3", "Size 6", "Size 9", "Size 12", "Size 18"]
+        self.painter_size_combo.addItems(painter_option_array)
+
+
+
+
+
+        #self.text_label_height = 20 # used to offset cursor
+        #print(self.text_label_height)
+
+        #self.text_box_height = self.model_combo.height() # used to offset cursor
+        
+        # total offset from widgets, added to y-position
+        #self.total_offset = self.text_label_height + self.text_box_height
+
+        # add second layout to main outer layout
+        #self.layout_outer.addLayout(self.canvas_layout2)
+
+    # check size of paint
+    def check_paint_size(self, event: QtGui.QMouseEvent):
+        # retrieve current text displayed in combo box
+        text = self.painter_size_combo.currentText()
+
+        # check which option is selected 
+        if text == "Size 3":
+            paint_width = 3
+            self.last_x = event.x()
+            self.last_y = event.y()
+        elif text == "Size 6":
+            paint_width = 6
+            self.last_x = event.x()
+            self.last_y = event.y()
+        elif text == "Size 9":
+            paint_width = 9
+            self.last_x = event.x()
+            self.last_y = event.y()
+        elif text == "Size 12":
+            paint_width = 12
+            self.last_x = event.x()
+            self.last_y = event.y()
+        elif text == "Size 18":
+            paint_width = 18
+            self.last_x = event.x()
+            self.last_y = event.y()
+
+        return paint_width
+
+    # clear canvas
+    def clear_click(self):
+        self.canvas_label.setPixmap(self.canvas)
+
+
+
+
+    # resize event of canvas
+    #def resizeEvent(self, e):
+    #    canvas_resize = QtGui.QPixmap(500, 500)
+    #    canvas_resize.fill(QtGui.QColor('white'))
+    #    self.canvas = canvas_resize.scaled(self.width(), self.height())
+    #    self.canvas_label.setPixmap(self.canvas)
+    #    self.canvas_label.resize(self.width(), self.height())
+
+
+    # Adapted from https://www.pythonguis.com/tutorials/bitmap-graphics/
+    # set up painter and drawline lines based on cursor coordinates at each detected mouse movement
+    def mouseMoveEvent(self, event: QtGui.QMouseEvent):
+        if self.last_x is None: 
+            self.last_x = event.x()
+            self.last_y = event.y()
+            return 
+
+        self.painter = QtGui.QPainter(self.canvas_label.pixmap())
+        self.p = self.painter.pen()
+        self.p.setWidth(self.check_paint_size(event))
+        self.painter.setPen(self.p)
+
+        self.painter.drawLine(self.last_x, self.last_y, event.x(), event.y())
+        self.painter.end()
+        self.update()
+
+        self.last_x = event.x()
+        self.last_y = event.y()
+
+    def mouseReleaseEvent(self, event: QtGui.QMouseEvent):
+        # Reset when mouse click released
+        self.last_x = None
+        self.last_y = None
+
+        # Save drawn image
+        imgage = QtGui.QPixmap(self.canvas_label.pixmap())
+        imgage.save("images\loadedimage.png")
+
+
 
 # Tab 3 will display the View Training Images
 class tab_3_widget(QWidget):
@@ -558,166 +693,6 @@ class progress_bar_window(QDialog):
 
 
         
-# Tab 2
-class tab_2_widget(QWidget):
-    def __init__(self, parent=None):
-        super(tab_2_widget, self).__init__(parent)
 
-        # Outer layour
-        self.layout_outer = QHBoxLayout(self)
-
-        # set up layout 
-        self.canvas_layout = QVBoxLayout(self)
-        self.canvas_label = QLabel()
-        
-        # add text label
-        text_label = QLabel("This is Tab 2: Drawing Canvas")
-        self.canvas_layout.addWidget(text_label)
-
-        # set up canvas
-        # in event of window resize, the canvas size will adjust automatically - refer to resizeEvent()
-        canvas_resize = QtGui.QPixmap(500, 500)
-        self.canvas = canvas_resize.scaled(self.width(), self.height())
-        self.canvas.fill(QtGui.QColor('white'))
-        canvas_resize.fill(QtGui.QColor('white'))
-        self.canvas_label.setPixmap(self.canvas)
-        self.canvas_label.setMinimumSize(1,1)
-        self.canvas_layout.addWidget(self.canvas_label)
-
-        # add button to clear canvas
-        clearButton = QPushButton('Clear')
-        self.canvas_layout.addWidget(clearButton)
-        clearButton.clicked.connect(self.clear_click)
-
-        # add paint brush thickeness selection widget
-        self.painter_size_combo = QComboBox(self)
-        self.canvas_layout.addWidget(self.painter_size_combo)
-        painter_option_array = ["Size 3", "Size 6", "Size 9"]
-        self.painter_size_combo.addItems(painter_option_array)
-
-        self.last_x, self.last_y = None, None
-
-        # add to main outer layout
-        self.layout_outer.addLayout(self.canvas_layout)
-
-        # create new layout to be nested inside outer layout
-        self.canvas_layout2 = QVBoxLayout(self)
-
-        text_label = QLabel('Prediction Here: ')
-        self.canvas_layout2.addWidget(text_label)
-
-        self.text_label_height = 20 # used to offset cursor
-        print(self.text_label_height)
-
-        text_box = QTextBrowser(self)
-        self.canvas_layout2.addWidget(text_box)
-        prediction_text = "Prediction is: ####"
-        text_box.setText(prediction_text)
-        self.canvas_layout2.addSpacing(50)
-        button1 = QPushButton("Button 1", self)
-        button2 = QPushButton("Button 2", self)
-        self.canvas_layout2.addWidget(button1)
-        self.canvas_layout2.addWidget(button2)
-
-        self.text_box_height = text_box.height() # used to offset cursor
-        
-        # total offset from widgets, added to y-position
-        self.total_offset = self.text_label_height + self.text_box_height
-
-        # add second layout to main outer layout
-        self.layout_outer.addLayout(self.canvas_layout2)
-
-
-
-
-    #@QtCore.pyqtSlot()
-    # resize event of canvas
-    def resizeEvent(self, e):
-        canvas_resize = QtGui.QPixmap(500, 500)
-        canvas_resize.fill(QtGui.QColor('white'))
-        self.canvas = canvas_resize.scaled(self.width(), self.height())
-        self.canvas_label.setPixmap(self.canvas)
-        self.canvas_label.resize(self.width(), self.height())
-
-    # clear canvas
-    def clear_click(self):
-        self.canvas_label.setPixmap(self.canvas)
-
-    # get mouse/curosr position
-    #def mousePressEvent(self, e):
-        #print(e.pos())
-    #   pass
-
-    def check_paint_size(self, e : QtGui.QMouseEvent):
-        
-        text = self.painter_size_combo.currentText()
-
-        # checks which option is selected in the painter size selection box
-        if text == "Size 3":
-            paint_width = 3
-            self.last_x = e.x()
-            self.last_y = e.y() + self.total_offset
-        elif text == "Size 6":
-            paint_width = 6
-            self.last_x = e.x()
-            self.last_y = e.y() + self.total_offset
-        elif text == "Size 9":
-            paint_width = 9
-            self.last_x = e.x()
-            self.last_y = e.y() + self.total_offset
-        else:
-            paint_width = 3 # default size
-            self.last_x = e.x()
-            self.last_y = e.y() + self.total_offset
-        return paint_width
-    
-        
-    
-    # Adapted from https://www.pythonguis.com/tutorials/bitmap-graphics/
-    def mouseMoveEvent(self, e : QtGui.QMouseEvent):
-        #cursor = QtGui.QCursor()
-        #print(cursor.pos())
-
-        # First event
-        if self.last_x is None: 
-            self.last_x = e.x()
-            self.last_y = e.y() + self.total_offset
-            return # Ignore the first time
-
-        #text = self.painter_size_combo.currentText()
-
-        # checks which option is selected in the painter size selection box
-
-        #paint_width = 6
-
-        self.painter = QtGui.QPainter(self.canvas_label.pixmap())
-
-        # set thickness of pen
-        self.p = self.painter.pen()
-        #p.setWidth(5)
-        self.p.setWidth(self.check_paint_size(e))
-
-
-        #print(self.check_paint_size(e)) # for testing
-        print(self.total_offset)
-
-
-        self.painter.setPen(self.p) 
-        self.painter.drawLine(self.last_x, self.last_y, e.x(), e.y() + self.total_offset)
-        #self.painter.drawLine(self.last_x, self.last_y, e.x(), e.y())
-        self.painter.end()
-        self.update()
-
-        # Update the origin for next time
-        self.last_x = e.x()
-        self.last_y = e.y()+ self.total_offset
-
-    def mouseReleaseEvent(self, e : QtGui.QMouseEvent):
-        self.last_x = None
-        self.last_y = None
-
-        # save drawn image
-        img = QtGui.QPixmap(self.canvas_label.pixmap())
-        img.save("images\loadedimage.png")
 
 
