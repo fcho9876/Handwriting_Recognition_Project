@@ -95,34 +95,17 @@ class myGUI(QMainWindow):
         filemenu.addAction(remove_all_tab_menu)
         remove_all_tab_menu.triggered.connect(self.removeAllTabs)
 
-        # Add view menu
-        # Add view training images and testing images
-        view_menu = menubar.addMenu('&View')
-        view_training_images_menu = QAction('View Training Images', self)
-        view_menu.addAction(view_training_images_menu)
-
-        view_training_images_menu.triggered.connect(self.view_data_window)
-
-        view_testing_images_menu = QAction('View Testing Images', self)
-        view_menu.addAction(view_testing_images_menu)
-
-        version_history = QMenu('Version history', self)
-        version_number = QAction('Version number', self)
-        version_history.addAction(version_number)
-        view_menu.addMenu(version_history)
-
         # set a status bar at bottom of window
         self.statusBar().showMessage('Ready')
         
         # ====== Add toolbars ======
-        fileToolBar = QToolBar(self)
+        fileToolBar = self.addToolBar('Tab control top')
         self.addToolBar(Qt.TopToolBarArea, fileToolBar)
-        #fileToolBar = self.addToolBar('Tab control')    # set name of toolbar
         fileToolBar.addAction(remove_all_tab_menu)
         fileToolBar.addAction(remove_tab_menu)
         
         # Additional toolbar to left side of window
-        sideToolBar = QToolBar(self)
+        sideToolBar = self.addToolBar('Tab control side')
         self.addToolBar(Qt.LeftToolBarArea, sideToolBar)
         sideToolBar.addAction(new_tab_menu)
         sideToolBar.addAction(new_tab_menu2)
@@ -133,21 +116,7 @@ class myGUI(QMainWindow):
         self.show()  # make visible
 
         
-    # signal to connect view_data signal
-    # every time a QAction is trigger signal emitted, this signal must be connectedto some function, this can be done using slot function
-    @pyqtSlot()
-    # open new windows
-    def view_data_window(self):
-        new_window = QDialog(self)
-        new_window.setWindowTitle('View Data')
-        new_window.resize(300, 400)
-        new_window.exec_()
 
-    def dataset_window(self):
-        new_window3 = dataset_Dialog_window()
-        new_window3.setWindowTitle('Import Dataset')
-        new_window3.resize(400, 400)
-        new_window3.exec_()
 
     # ====== open/close tabs ======
     # when tab is opened automatically switches to new opened tab
@@ -155,28 +124,28 @@ class myGUI(QMainWindow):
         # saves current index our main window is open at
         current_index = self.table_widget.tabs.currentIndex()
         # opens new tab at that particular index
-        self.table_widget.tabs.insertTab(current_index, tab_1_widget(), "Tab 1")
+        self.table_widget.tabs.insertTab(current_index, tab_1_widget(), "Tab 1: Welcome")
         # sets current index to the index of newly opened tab
         self.table_widget.tabs.setCurrentIndex(current_index)
 
     def add_tab_2(self):
         current_index = self.table_widget.tabs.currentIndex()
-        self.table_widget.tabs.insertTab(current_index, tab_2_widget(), "Tab 2")
+        self.table_widget.tabs.insertTab(current_index, tab_2_widget(), "Tab 2: Drawing Canvas")
         self.table_widget.tabs.setCurrentIndex(current_index)
 
     def add_tab_3(self):
         current_index = self.table_widget.tabs.currentIndex()
-        self.table_widget.tabs.insertTab(current_index, tab_3_widget(), "Tab 3")
+        self.table_widget.tabs.insertTab(current_index, tab_3_widget(), "Tab 3: Import and Train Dataset")
         self.table_widget.tabs.setCurrentIndex(current_index)
 
     def add_tab_4(self):
         current_index = self.table_widget.tabs.currentIndex()
-        self.table_widget.tabs.insertTab(current_index, tab_4_widget(), "Tab 4")
+        self.table_widget.tabs.insertTab(current_index, tab_4_widget(), "Tab 4: View Training Images")
         self.table_widget.tabs.setCurrentIndex(current_index)
 
     def add_tab_5(self):
         current_index = self.table_widget.tabs.currentIndex()
-        self.table_widget.tabs.insertTab(current_index, tab_5_widget(), "Tab 5")
+        self.table_widget.tabs.insertTab(current_index, QWidget(), "Tab 5: View Testing Images")
         self.table_widget.tabs.setCurrentIndex(current_index)
 
     def removeTab(self):
@@ -242,10 +211,10 @@ class tab_2_widget(QWidget):
         # Test layout
         self.test_layout = QVBoxLayout(self)
         self.button1 = QPushButton("Load Model", self)
-        #self.button1.clicked.connect(self.load_selected_model)
+        self.button1.clicked.connect(self.load_selected_model)
         self.button2 = QPushButton("Predict", self)
 
-        #self.button2.clicked.connect(self.predict_show)
+        self.button2.clicked.connect(self.predict_show)
 
         # Set up text for text browser
         prediction_text = "Prediction: "
@@ -321,6 +290,57 @@ class tab_2_widget(QWidget):
 
         # add second layout to main outer layout
         #self.layout_outer.addLayout(self.canvas_layout2)
+
+    def predict_show(self):
+        self.prediction, self.accuracy = nnmodel.process_input_image()
+        self.prediction_browser.setText("Prediction is: " + self.prediction)
+        self.prediction_browser.setFont(QFont('Serif', 10))
+        self.accuracy_browser.setText("Confidence: " + self.accuracy + "%")
+        self.accuracy_browser.setFont(QFont('Serif', 10))
+     
+    # loads from saved model
+    def load_selected_model(self):
+        # retrieve current text displayed in combo box to get model names
+        chosen_model = self.model_combo.currentText()
+
+        # check which model is chosen 
+        if (chosen_model == 'Default_Net'):
+            # load the chosen model
+            nnmodel.load_model_1()
+            self.selected_model_text = 'Default_Net'
+            self.set_model_browser.setText("Model loaded: " + self.selected_model_text)
+        elif (chosen_model == 'CNN_Net'):
+            nnmodel.load_model_2()
+            self.selected_model_text = 'CNN_Net'
+            self.set_model_browser.setText("Model loaded: " + self.selected_model_text)
+        elif (chosen_model == 'ResNet_Net'):
+            nnmodel.load_model_3()
+            self.selected_model_text = 'ResNet_Net'
+            self.set_model_browser.setText("Model loaded: " + self.selected_model_text)
+        elif (chosen_model == 'Custom_Net'):
+            
+            self.selected_model_text = 'Custom_Net'
+
+            # check which model to load based on what the custom model was trained on
+            model_type =  str(type(nnmodel.model).__name__)
+            if (model_type == 'Default_Net' and int(nnmodel.load_model_4_Default()) != 0):
+                nnmodel.load_model_4_Default()
+                self.set_model_browser.setText("Model loaded: " + self.selected_model_text) 
+    
+            elif (model_type == 'CNN_Net' and int(nnmodel.load_model_4_Default()) != 0):
+                nnmodel.load_model_4_CNN
+                self.set_model_browser.setText("Model loaded: " + self.selected_model_text) 
+
+            elif(model_type == 'ResNet_Net' and int(nnmodel.load_model_4_Default()) != 0):
+                nnmodel.load_model_4_ResNet
+                self.set_model_browser.setText("Model loaded: " + self.selected_model_text) 
+
+            else:
+                self.set_model_browser.setText("Model does not exist: " + self.selected_model_text) 
+
+
+            #self.set_model_browser.setText("Model loaded: " + self.selected_model_text)       
+        #self.prediction_browser.append(chosen_model + ' model loaded!')
 
     # check size of paint
     def check_paint_size(self, event: QtGui.QMouseEvent):
