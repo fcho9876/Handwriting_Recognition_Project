@@ -507,109 +507,283 @@ class tab_3_widget(QWidget):
                     label.setPixmap(saved_image_scaled)
                     self.grid.addWidget(label, row, col)
 
-# Tab 4 will display the View Testing Images
-class tab_4_widget(QWidget):
-    def __init__(self, parent = None):
-        super(tab_4_widget, self).__init__(parent)
-        self.initUI()
+# Tab 3 widget for importing and training dataset
+class tab_3_widget(QWidget):
+        def __init__(self):
+            super(tab_3_widget, self).__init__()
+            self.tab_3_layout = QVBoxLayout(self)
+            text_label = QLabel("This is Tab 3: Import Datasets")
+            self.tab_3_layout.addWidget(text_label)
 
-    def initUI(self):
+            self.text_box = QTextBrowser(self)
+            welcome_message = "Welcome! Please download/load the EMNIST dataset to begin."
+            self.tab_3_layout.addWidget(self.text_box)
+            self.text_box.setText(welcome_message)
 
-        # OUTER BOX HOLDING EVERYTHING TOGETHER
-        self.layout_outer = QHBoxLayout()
-        self.setLayout(self.layout_outer)        
-        
-        # self.images is a grid of 100 x 100 images from the dataset
-        self.page = 0   # This is the page number
-       
-        # HOLD IMAGE VIEWER + NAV BUTTONS
-        self.scroll_nav_layout = QVBoxLayout()
+            download_button = QPushButton('Download/Load EMNIST Dataset', self)
+            download_button.clicked.connect(self.download_with_thread)  # link to signal with thread
+            self.tab_3_layout.addWidget(download_button)
 
-        # add scroll component
-        self.images = QWidget()
-        self.grid = QGridLayout()
+            instruction_text = QLabel("Select a model to train: (NOTE: Resulting trained model will be saved as 'Custom_Net')")
+            self.tab_3_layout.addWidget(instruction_text)
 
-        # scroll settings
-        self.images.setLayout(self.grid)
-        self.scroll = QScrollArea()
-        self.scroll.setWidget(self.images)
-        self.scroll.setWidgetResizable(True)
-        self.scroll.setMinimumWidth(450)
-        self.scroll_nav_layout.addWidget(self.scroll)
-  
-        # NAVIGATE LAYOUT TO HOLD NEXT AND BACK BUTTONS
-        self.navigate_layout = QHBoxLayout()
-        back_button = QPushButton("Previous")
-        next_button =  QPushButton("Next")
+            self.model_combo_box = QComboBox(self)
+            self.tab_3_layout.addWidget(self.model_combo_box)
+            model_option_array = ["Select", "Default_Net", "CNN_Net", "ResNet_Net"]
+            self.model_combo_box.addItems(model_option_array)
 
-        self.navigate_layout.addWidget(back_button)
-        self.navigate_layout.addWidget(next_button)
-        back_button.clicked.connect(self.load_prev_page)
-        next_button.clicked.connect(self.load_next_page)
-        
-        # RIGHT SIDE OF OVERALL LAYOUT
-        # Page counter
-        self.right_layout = QVBoxLayout()
-        text_box = QTextBrowser(self)
-        text_message = "Welcome to MNIST Dataset Testing image viewer"
-        text_box.setText(text_message)
-        self.right_layout.addWidget(text_box)
+            load_model_button = QPushButton('Select Model', self)
+            load_model_button.clicked.connect(self.set_selected_model)
+            self.tab_3_layout.addWidget(load_model_button)
 
-        stats_button = QPushButton("See Statistics", self)
-        self.right_layout.addWidget(stats_button)
+            instruction_text_epoch = QLabel("Select number of epoch: ")
+            self.tab_3_layout.addWidget(instruction_text_epoch)
 
-        self.right_layout.addSpacing(200)
+            # add combo box for number of epochs to be selected 
+            self.epoch_combo_box = QComboBox(self)
+            self.tab_3_layout.addWidget(self.epoch_combo_box)
+            epoch_option_array = ["1", "2", "3", "4", "5", "6", "7", "8"]
+            self.epoch_combo_box.addItems(epoch_option_array)
 
-        self.page_num_box = QTextBrowser(self)
-        self.page_num_box.setMaximumHeight(30)
-        self.page_number = str(self.page)
-        self.page_num_box.setText("Page: "+self.page_number)
-        self.right_layout.addWidget(self.page_num_box)
+            # add button to select the chossen number of epoch
+            load_epoch_button = QPushButton('Select Epoch', self)
+            load_epoch_button.clicked.connect(self.set_selected_epoch)
+            self.tab_3_layout.addWidget(load_epoch_button)
 
-        ####### CONFIGURE LAYOUTS ######
-        # add grid and nav to scroll_nav_layout
-        self.scroll_nav_layout.addLayout(self.grid)
-        self.scroll_nav_layout.addLayout(self.navigate_layout)
+            instruction_text_train = QLabel("Train & Delete Model: ")
+            self.tab_3_layout.addWidget(instruction_text_train)
 
-        # add above to outer grid
-        self.layout_outer.addLayout(self.scroll_nav_layout)
-        self.layout_outer.addLayout(self.right_layout)
+            # Train the model
+            train_button = QPushButton('Train', self)
+            self.tab_3_layout.addWidget(train_button)
+            train_button.clicked.connect(self.train_with_thread)    # link to signal with thread
 
-        self.load_dataset_images()
+            # Delete Custom_Model
+            delete_model_button = QPushButton("Delete Model (Custom_Net)", self)
+            self.tab_3_layout.addWidget(delete_model_button)
+            delete_model_button.clicked.connect(self.remove_model_file)
 
-    ###### Functions for grid image control ######
-    def load_next_page(self):
-            self.page = self.page + 1
-            self.load_dataset_images()
-            self.page_num_box.setText("Page: "+ str(self.page))
+            cancel_button = QPushButton('Cancel')
+            cancel_button.clicked.connect(self.cancel_textBrowser)
+            self.tab_3_layout.addWidget(cancel_button)
 
-    def load_prev_page(self):
-        # ensure page number is not negative
-        if self.page > 0:
-            self.page = self.page - 1
-            self.load_dataset_images()
-            self.page_num_box.setText("Page: "+ str(self.page))
+        # function to remove the Custom_Net file
+        def remove_model_file(self):
+            file_name = 'saved_models\Custom_Net'
+            if os.path.exists(file_name) and not os.path.isdir(file_name) and not os.path.islink(file_name):
+                os.remove(file_name)
+            else:
+                print("File does not exist")
+                self.text_box.append("File does not exist")
 
-    # use nested for loop to iterate each row and column of our image grid and add a pixmap image
-    def load_dataset_images(self):
-            for row in range(0,50):    # range(0,50) number of rows per page --> 50 rows
-                for col in range(0,4):    # range(0,4) number of columns per page --> 4 columns
+        # function to set the number of epochs
+        def set_selected_epoch(self):
+            self.chosen_epoch = int(self.epoch_combo_box.currentText())    # save as int
+            nnmodel.save_epoch_number(self.chosen_epoch)
+            
 
-                    # each image grid will display 4 x 50 = 200 images
-                    label = QLabel()
+        # Set the model we want to train the dataset on
+        def set_selected_model(self):
+            # retrieve current text displayed in combo box to get model names
+            self.chosen_model = self.model_combo_box.currentText()
 
-                    # max images per grid = 50 * 5 = 250
-                    image_array = np.squeeze(nnmodel.test_dataset[row+col+200*self.page][0])
+            # check which model is chosen
+            if (self.chosen_model == 'Select'):
+                self.text_box.setText("That is not a valid model! Please try again.")
 
-                    # save as grayscale images
-                    plot.imsave("images\\temp_grid_image.png", image_array, cmap='gray')
-                    saved_image = QtGui.QPixmap("images\\temp_grid_image.png")
-                    
-                    # upscale the images
-                    saved_image_scaled = saved_image.scaled(100, 100, Qt.KeepAspectRatio, Qt.FastTransformation)
+            elif (self.chosen_model == 'Default_Net'):
+                # load the chosen model
+                nnmodel.set_model_to_train('Default_Net')
+                self.text_box.setText(self.chosen_model + ' model set to train!')
 
-                    label.setPixmap(saved_image_scaled)
-                    self.grid.addWidget(label, row, col)
+            elif (self.chosen_model == 'CNN_Net'):
+                nnmodel.set_model_to_train('CNN_Net')
+                self.text_box.setText(self.chosen_model + ' model set to train!')
+
+            elif (self.chosen_model == 'ResNet_Net'):
+                nnmodel.set_model_to_train('ResNet_Net')
+                self.text_box.setText(self.chosen_model + ' model set to train!')
+
+
+        def cancel_textBrowser(self):
+            cancel_message = "Process Cancelled. Please wait a moment."
+            self.text_box.setText(cancel_message)   # replace all existing text with new text
+            nnmodel.check_cancel(True)
+
+        def download_with_thread(self):
+            self.text_box.setText("Download button has been pressed")  # add line of text below previous text
+
+            self.thread = QThread(parent = self)
+            self.worker = worker()
+
+            self.worker.moveToThread(self.thread)
+
+            # Connect signals and slots
+            self.thread.started.connect(self.worker.worker_download_dataset)
+            self.worker.progress.connect(self.reportProgress)
+            self.worker.progress.connect(self.thread.quit)
+            self.worker.finished.connect(self.worker.deleteLater)
+            self.thread.finished.connect(self.thread.deleteLater)
+
+            # Start the thread
+            self.thread.start()
+
+            self.text_box.append("Download Finished!")
+            
+
+        # Adapted from https://realpython.com/python-pyqt-qthread/
+        def train_with_thread(self):
+    
+            self.text_box.append("Begin Training Dataset...")
+            # Need to set parent = self or else destoryed thread will continue to run after cancelled
+            self.thread = QThread(parent = self)    # create QThread object
+            self.worker = worker()                  # create worker object
+
+            # Move worker to the thread
+            self.worker.moveToThread(self.thread)
+
+            # Connect signals and slots
+            self.thread.started.connect(self.worker.worker_run_train)
+            self.worker.progress.connect(self.reportProgress)
+            self.worker.epoch_progress.connect(self.report_epoch_progress)
+            self.worker.progress.connect(self.thread.quit)
+            self.worker.finished.connect(self.worker.deleteLater)
+            self.thread.finished.connect(self.thread.deleteLater)
+
+            # Start the thread
+            self.thread.start()
+
+        # used to display error message to text browser
+        def reportProgress(self, int):
+            if int == 1:
+                self.text_box.setText("EMNIST Dataset is missing! Please download and try again.")
+
+            elif int == 2:
+                self.text_box.append("Starting EMNIST Training dataset download...")
+
+            elif int == 3:
+                self.text_box.append("Finished downloading EMNIST Training dataset.")
+            
+            elif int == 4:
+                self.text_box.append("Starting EMNIST Testing dataset download...")
+
+            elif int == 5:
+                self.text_box.append("Finished downloading EMNIST Testing dataset.")
+
+
+        def report_epoch_progress(self, input):
+            if input == 'epoch_1':
+                self.text_box.append("===========================")
+                self.text_box.append("Training Epoch: 1")
+
+            elif input == 'epoch_2':
+                self.text_box.append("Training Epoch: 2")
+
+            elif input == 'epoch_3':
+                self.text_box.append("Training Epoch: 3")
+
+            elif input == 'epoch_4':
+                self.text_box.append("Training Epoch: 4")
+
+            elif input == 'epoch_5':
+                self.text_box.append("Training Epoch: 5")
+
+            elif input == 'epoch_6':
+                self.text_box.append("Training Epoch: 6")
+
+            elif input == 'epoch_7':
+                self.text_box.append("Training Epoch: 7")
+
+            elif input == 'epoch_8':
+                self.text_box.append("Training Epoch: 8")                
+
+            elif input == 'epoch_complete':
+                self.text_box.append("===========================")
+                self.text_box.append("Model training completed.")
+
+            elif input == 'epoch_cancelled':
+                self.text_box.append("===========================")
+                self.text_box.append("Model training cancelled.")
+    
+
+
+# Need to use QThread to prevent GUI from freezing during dataset training
+# Adapted from https://realpython.com/python-pyqt-qthread/
+# create worker class 
+class worker(QObject):
+    finished = pyqtSignal()
+    progress = pyqtSignal(int)
+    epoch_progress = pyqtSignal(str)
+
+    def worker_run_train(self):
+        nnmodel.check_cancel(False)
+
+        #nnmodel.save_epoch_number(1)    # set default option to epoch 1
+        #epoch_range = nnmodel.epoch_number + 1
+
+        try:
+            epoch_range = nnmodel.epoch_number + 1
+            # Adapted from COMPSYS 302 PyTorch lab
+            # print to terminal to check progress
+            since = time.time()
+            for epoch in range(1, epoch_range):
+                # check if user has cancelled the process
+                if (nnmodel.cancel == True):
+                    self.finished.emit()
+                    self.epoch_progress.emit('epoch_cancelled')
+                    break
+
+                # emit signal for each epoch being trained up to epoch 8
+                self.epoch_progress.emit(nnmodel.check_epoch(epoch))
+
+                epoch_start = time.time()
+                nnmodel.train_model(epoch)
+
+                # Testing purposes, TODO REMOVE IN REFACTOR
+                print(type(nnmodel.model).__name__)
+
+                m, s = divmod(time.time() - epoch_start, 60)
+                print(f'Training time: {m:.0f}m {s:.0f}s')
+                nnmodel.test_model()
+                m, s = divmod(time.time() - epoch_start, 60)
+                print(f'Testing time: {m:.0f}m {s:.0f}s')
+
+
+            m, s = divmod(time.time() - since, 60)
+            print(f'Total Time: {m:.0f}m {s:.0f}s\nModel was trained on {nnmodel.device}!')
+
+            self.epoch_progress.emit('epoch_complete')
+            self.progress.emit(20)
+            self.finished.emit()
+
+            # check which model to save
+            # save the model "torch.save(model.state_dict(), PATH)"
+            #torch.save(nnmodel.model.state_dict(), 'saved_models\CNN_Net')
+            #torch.save(nnmodel.model.state_dict(), 'saved_models\Default_Net')
+            #torch.save(nnmodel.model.state_dict(), 'saved_models\ResNet_Net')
+            torch.save(nnmodel.model.state_dict(), 'saved_models\Custom_Net')
+
+        except AttributeError:
+            print("EMNIST Dataset Missing!")
+            self.progress.emit(1)
+
+
+    def worker_download_dataset(self):
+        nnmodel.check_cancel(False)
+        if (nnmodel.cancel == True):
+            self.finished.emit()
+        else:
+            self.progress.emit(2)
+            nnmodel.download_training_dataset()
+            nnmodel.load_training_dataset()
+            self.progress.emit(3)   # emit 2 if finished downloading/loading train data
+
+            self.progress.emit(4)
+            nnmodel.download_testing_dataset()
+            nnmodel.load_testing_dataset()
+            self.progress.emit(5)   # emit 3 if finished downloading/loading test data
+
+            self.finished.emit()
                 
     
 # Tab 5 will display the Import Datasets
