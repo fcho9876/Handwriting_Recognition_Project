@@ -1,3 +1,9 @@
+# File name: NNModel.py
+# Author: Francis Cho
+# Project Version: 1.0
+# Description: Contains ML Model implementation + dataset import and manipulation
+# Python Version: 3.1
+
 from torch import nn, optim, cuda
 from torch.utils import data
 from torchvision import datasets, transforms

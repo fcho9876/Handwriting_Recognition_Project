@@ -1,3 +1,9 @@
+# File name: myGUI.py
+# Author: Francis Cho
+# Project Version: 1.0
+# Description: GUI for the Handwritten Digit/Letter Recognizer using PyQt5
+# Python Version: 3.1
+
 import sys
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
