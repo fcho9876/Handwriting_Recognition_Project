@@ -41,6 +41,7 @@ class myGUI(QMainWindow):
         # Initialize tab widget
         self.table_widget = MyTableWidget(self)
         self.setCentralWidget(self.table_widget)
+        self.add_tab_1()    # add welcome tab on launch
 
         # set font & size of tool tip
         QToolTip.setFont(QFont('SansSerif', 10))
@@ -66,30 +67,30 @@ class myGUI(QMainWindow):
 
 
         # sub menu to open/close tabs in our window
-        # tab 1
-        new_tab_menu = QAction('Open New Tab 1', self)
+        # Tab 1
+        new_tab_menu = QAction('Tab 1: Welcome', self)
         filemenu.addAction(new_tab_menu)
-        new_tab_menu.triggered.connect(self.add_tab_1)  # link (signal) to open tab function
-        
-        # tab 2
-        new_tab_menu2 = QAction('Open New Tab 2', self)
+        new_tab_menu.triggered.connect(self.add_tab_1)  # link to signal
+
+        # Tab 2
+        new_tab_menu2 = QAction('Tab 2: Draw Canvas', self)
         filemenu.addAction(new_tab_menu2)
-        new_tab_menu2.triggered.connect(self.add_tab_2)
+        new_tab_menu2.triggered.connect(self.add_tab_2) # link to signal
 
-        # tab 3
-        new_tab_menu3 = QAction('Open New Tab 3', self)
+        # Tab 3
+        new_tab_menu3 = QAction('Tab 3: Import Dataset', self)
         filemenu.addAction(new_tab_menu3)
-        new_tab_menu3.triggered.connect(self.add_tab_3)
+        new_tab_menu3.triggered.connect(self.add_tab_3) # link to signal
 
-        # tab 4
-        new_tab_menu4 = QAction('Open New Tab 4', self)
+        # Tab 4
+        new_tab_menu4 = QAction('Tab 4: View Image Train', self)
         filemenu.addAction(new_tab_menu4)
-        new_tab_menu4.triggered.connect(self.add_tab_4)
+        new_tab_menu4.triggered.connect(self.add_tab_4) # link to signal
 
-        # tab 5
-        new_tab_menu5 = QAction('Open New Tab 5', self)
+        # Tab 5
+        new_tab_menu5 = QAction('Tab 5: View Image Test', self)
         filemenu.addAction(new_tab_menu5)
-        new_tab_menu5.triggered.connect(self.add_tab_5)
+        new_tab_menu5.triggered.connect(self.add_tab_5) # link to signal
 
         # close current tab
         remove_tab_menu = QAction('Close Current Tab', self)
@@ -190,12 +191,33 @@ class MyTableWidget(QWidget):
 
 # Tab 1 widget for welcome information
 class tab_1_widget(QWidget):
-    def __init__(self, parent=None):
-        super(tab_1_widget, self).__init__(parent)
-        self.main_layout = QVBoxLayout(self)
-        text_label = QLabel("This is Tab 1")
-        self.main_layout.addWidget(text_label)
+    def __init__(self):
+        super(tab_1_widget, self).__init__()
+        self.tab_1_layout = QVBoxLayout(self)
+        title_label = QLabel("Handwritten Digit/Letter Recogniser Python Project")
+        title_label.setFont(QFont('Serif', 16))
+        self.tab_1_layout.addWidget(title_label)
+        author_label = QLabel("Created by Francis Cho")
+        self.tab_1_layout.addWidget(author_label)
 
+        self.welcome_text_box = QTextBrowser(self)
+        self.welcome_text_box.setText(" ")
+        self.welcome_text_box.append("Project Version 1.1")
+        self.welcome_text_box.append(" ")
+        self.welcome_text_box.append("Features: ")
+        self.welcome_text_box.append("- Drawing canvas")
+        self.welcome_text_box.append(" ")
+        self.welcome_text_box.append("- EMNIST Train/Test Dataset Viewer")
+        self.welcome_text_box.append(" ")
+        self.welcome_text_box.append("- 3 Pre-trained NN Models:")
+        self.welcome_text_box.append("      - Default_Net")
+        self.welcome_text_box.append("      - CNN_Net")
+        self.welcome_text_box.append("      - ResNet_Net")
+        self.welcome_text_box.append(" ")
+        self.welcome_text_box.append("- Custom model training with model and epoch selection")
+        self.welcome_text_box.setFont(QFont('Serif', 10))
+        
+        self.tab_1_layout.addWidget(self.welcome_text_box)
 # Tab 2 widget for drawing canvas
 class tab_2_widget(QWidget):
     def __init__(self):
