@@ -18,6 +18,7 @@ import torchvision.models as models
 import torchvision.transforms.functional as FT
 
 import torch
+import cv2
 
 class NNModel():
 
@@ -230,6 +231,110 @@ class NNModel():
         image_ROI = image_blurred.convert('L')              # convert image to black and white
         image_ROI = np.array(image_ROI)                     # convert to a numpy array data
         image_ROI = np.invert(image_ROI)                    # inverts the array
+
+        # set up dimensions of image shape and define arrays to store position of zeros
+        numRows, numCols = image_ROI.shape
+        zero_row_array = []
+        zero_col_array = []
+        for i in range(0, numRows - 1):
+            for j in range(0, numCols):
+                if (np.count_nonzero(image_ROI[i, :])):
+                    pass    # do nothing if current index is a non-zero
+                else:
+                    zero_row_array.append(i)
+                
+                if (np.count_nonzero(image_ROI[:, j])):
+                    pass    # do nothing if current index is a non-zero
+                else:
+                    zero_col_array.append(j)
+
+        # remove zeros to get our ROI
+        image_ROI = np.delete(image_ROI, tuple(zero_row_array), axis = 0)
+        image_ROI = np.delete(image_ROI, tuple(zero_col_array), axis = 1)
+   
+        # preserve aspect ratio by setting both dimensions to the higher dimension
+        temp_img = Image.fromarray(image_ROI, 'L')
+        temp_img.save('images/(c)_ROI_Extraction.png')
+
+        pixel_width, pixel_height = temp_img.size
+        new_aspect_ratio = max(pixel_width, pixel_height)
+        image_ROI = temp_img.resize((new_aspect_ratio, new_aspect_ratio))
+
+        # Resize image to 26 by 26 to add a 2 pixel border
+        image_ROI = image_ROI.resize((26,26))
+
+        # Create a blank 28,28 black image
+        image_centered = Image.new('L', (28,28))
+
+        # Paste the 20,20 in the center to make the completed 28,28
+        image_centered.paste(image_ROI, (1,1))
+        image_centered.save('images/(d)_Centered_Frame.png')
+
+        # flip and rotate 90 degrees
+        newImg_flip = ImageOps.mirror(image_centered)
+        newImg_rotate = newImg_flip.rotate(90)
+
+        # final processed output image
+        newImg_rotate.save('./images/(e)_Resized.png')
+
+        # adjust for correct dtype
+        image_adjust = np.array(newImg_rotate).astype(np.float32) / 255
+        image_adjust_Tensor = torch.from_numpy(image_adjust)
+        
+        # convert 2D tensor to a 4D input by adding two dimensions for batch loading
+        image_adjust_Tensor = torch.unsqueeze(image_adjust_Tensor, 0)
+        image_adjust_Tensor = torch.unsqueeze(image_adjust_Tensor, 0)
+
+        # feed to model
+        self.output = self.model(torch.Tensor(image_adjust_Tensor))
+        print(self.output)
+
+        # find element with maximum value
+        max_prob_prediction = torch.argmax(self.output)
+
+        # set up to find accuracy
+        # normalize between 0 and 1
+        accuracy = F.softmax(self.output, dim = 1)
+        accuracy_numpy = accuracy.detach().numpy()
+        #print(accuracy)
+        #print(accuracy_numpy)
+        accuracy_numpy_100 = accuracy_numpy*100     # set as percentage
+        accuracy_rounded = np.round_(accuracy_numpy_100, decimals = 1)  # round to 1 dp
+        #print(accuracy_rounded)
+        accuracy_final = str(np.amax(accuracy_rounded))
+        #print(accuracy_final)
+
+        # set up character array to match classes of dataset
+        characters_array = ['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z',
+                        'a','b','d','e','f','g','h','n','q','r','t']
+        index = int(max_prob_prediction.item())
+        predicted_character = characters_array[index]
+        #print(predicted_character)
+
+        return predicted_character, accuracy_final
+
+
+
+    # process image captured from camera before fed into a train model
+    def process_capture_image(self):
+        img = Image.open('images/captured_image.png')
+
+        # convert to a numpy array data
+        img = np.array(img)                  
+
+        # apply gaussian blur and convert image to grayscale
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        image_blurred = cv2.GaussianBlur(gray, (7, 7), 0)
+        cv2.imwrite('images/first_blur.png', image_blurred)
+
+        # apply adaptive thresholding
+        image_thresh = cv2.adaptiveThreshold(image_blurred, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 81, 10)
+        #cv2.imshow("Gaussian Adaptive Thresholding", thresh)
+        cv2.imwrite('images/(b)_Gaussian_Blur.png', image_thresh)
+
+        # extract ROI from our initial inputted image
+        # use nested for loop to go by row and column to find blank space (contains zeros only)
+        image_ROI = image_thresh
 
         # set up dimensions of image shape and define arrays to store position of zeros
         numRows, numCols = image_ROI.shape
