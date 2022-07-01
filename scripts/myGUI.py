@@ -870,21 +870,6 @@ class tab_6_widget(QWidget):
         super(tab_6_widget, self).__init__()
         self.initUI()
 
-
-
-    def initUI1(self):
-        # Outer layout holds every other layout together
-        self.layout_outer = QHBoxLayout()
-        self.setLayout(self.layout_outer) 
-        self.clearButton = QPushButton('Open Camera')
-        self.layout_outer.addWidget(self.clearButton)
-        self.clearButton.clicked.connect(self.camera_with_thread)
-
-        #self.takePhotoButton = QPushButton('Take Photo')
-        #self.layout_outer.addWidget(self.takePhotoButton)
-        #self.takePhotoButton
-
-
     def initUI(self):
         # upper layout
         upper_layout = QHBoxLayout(self)
@@ -895,30 +880,24 @@ class tab_6_widget(QWidget):
         text_label = QLabel("This is Tab 6: Predict with captured image")
         self.canvas_layout.addWidget(text_label)
         self.canvas = QtGui.QPixmap(400, 400)
-
-        #pixmap_initial = QPixmap("images\captured_image.png")
-        #pixmap_scaled = QPixmap.scaled(pixmap_initial, 400, 400)
-        #self.canvas_label.setPixmap(pixmap_scaled)
-        self.canvas = QtGui.QPixmap(400, 400)
         self.canvas.fill(QtGui.QColor('white'))
         self.canvas_layout.addWidget(self.canvas_label)
-
-
 
         # Test layout
         self.test_layout = QVBoxLayout(self)
         self.button1 = QPushButton("Load Model", self)
         self.button1.clicked.connect(self.load_selected_model)
         self.button2 = QPushButton("Predict", self)
-
         self.button2.clicked.connect(self.predict_show)
-
 
         # Add button to start live video feed
         self.openCameraButton = QPushButton('Open Camera')
         self.clearButton = QPushButton('Clear')
         self.openCameraButton.clicked.connect(self.camera_with_thread)
 
+        # Add button to take photo 
+        #self.takePhotoButton = QPushButton('Take Photo')
+        #self.takePhotoButton.clicked.connect(self.take_photo)
 
         # Set up text for text browser
         prediction_text = "Prediction: "
@@ -959,6 +938,7 @@ class tab_6_widget(QWidget):
         self.test_layout.addWidget(self.button1)
         self.test_layout.addWidget(self.button2)
         self.test_layout.addWidget(self.openCameraButton)
+        #self.test_layout.addWidget(self.takePhotoButton)
         self.test_layout.addWidget(self.clearButton)
         self.test_layout.addSpacing(150)
 
@@ -967,18 +947,17 @@ class tab_6_widget(QWidget):
         #upper_layout.addStretch()   # prevents button from stretching when window size is changed
         upper_layout.addLayout(self.test_layout)
 
-        
         # add clear button to remove drawn image from canvas
         clearButton = QPushButton('Clear')
         self.canvas_layout.addWidget(clearButton)
         clearButton.clicked.connect(self.clear_image)
+
 
     def clear_image(self):
         self.canvas.fill(QtGui.QColor('white'))
         self.canvas_label.setPixmap(self.canvas)
 
 
-    
     def camera_with_thread(self):
         self.thread = QThread(parent = self)
         self.worker = worker_camera()
@@ -987,9 +966,7 @@ class tab_6_widget(QWidget):
 
         # connect signals and slots
         self.thread.started.connect(self.worker.worker_start_camera)
-
         self.worker.capture_picture.connect(self.report_capture)
-
         self.worker.progress.connect(self.thread.quit)
         self.worker.finished.connect(self.worker.deleteLater)
         self.thread.finished.connect(self.thread.deleteLater)  
@@ -1001,13 +978,13 @@ class tab_6_widget(QWidget):
     def report_capture(self, input):
         if (input == 1):
             #pixmap_initial = QPixmap("images\captured_image.png")
-            pixmap_initial = QPixmap("images\loadedimage.png")
+            pixmap_initial = QPixmap('images/captured_image.png')
             pixmap_scaled = QPixmap.scaled(pixmap_initial, 400, 400)
             self.canvas_label.setPixmap(pixmap_scaled)
 
 
     def predict_show(self):
-        self.prediction, self.accuracy = nnmodel.process_input_image()
+        self.prediction, self.accuracy = nnmodel.process_capture_image()
         self.prediction_browser.setText("Prediction is: " + self.prediction)
         self.prediction_browser.setFont(QFont('Serif', 10))
         self.accuracy_browser.setText("Confidence: " + self.accuracy + "%")
@@ -1052,9 +1029,7 @@ class tab_6_widget(QWidget):
 
             else:
                 self.set_model_browser.setText("Model does not exist: " + self.selected_model_text) 
-
-
-
+    
 
 class worker_camera(QObject):
     capture_picture = pyqtSignal(int)
@@ -1073,7 +1048,7 @@ class worker_camera(QObject):
                     break
                 elif cv2.waitKey(1) & 0xFF == ord('v'):
                     #cv2.imwrite('frame.png', frame)
-                    cv2.imwrite('images\loadedimage.png', frame)
+                    cv2.imwrite('images/captured_image.png', frame)
                     self.capture_picture.emit(1)
                     break
 
