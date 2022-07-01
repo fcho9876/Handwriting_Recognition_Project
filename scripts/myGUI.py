@@ -21,6 +21,8 @@ from PyQt5.QtCore import QObject, QThread, pyqtSignal
 import time
 import os
 
+import cv2
+
 from scripts.NNModel import NNModel
 
 
@@ -92,6 +94,12 @@ class myGUI(QMainWindow):
         filemenu.addAction(new_tab_menu5)
         new_tab_menu5.triggered.connect(self.add_tab_5) # link to signal
 
+        # Tab 6
+        new_tab_menu6 = QAction('Tab 6: Video Camera', self)
+        filemenu.addAction(new_tab_menu6)
+        new_tab_menu6.triggered.connect(self.add_tab_6) # link to signal
+
+
         # close current tab
         remove_tab_menu = QAction('Close Current Tab', self)
         filemenu.addAction(remove_tab_menu)
@@ -119,11 +127,9 @@ class myGUI(QMainWindow):
         sideToolBar.addAction(new_tab_menu3)
         sideToolBar.addAction(new_tab_menu4)
         sideToolBar.addAction(new_tab_menu5)
+        sideToolBar.addAction(new_tab_menu6)
 
         self.show()  # make visible
-
-        
-
 
     # ====== open/close tabs ======
     # when tab is opened automatically switches to new opened tab
@@ -153,6 +159,11 @@ class myGUI(QMainWindow):
     def add_tab_5(self):
         current_index = self.table_widget.tabs.currentIndex()
         self.table_widget.tabs.insertTab(current_index, QWidget(), "Tab 5: View Testing Images")
+        self.table_widget.tabs.setCurrentIndex(current_index)
+
+    def add_tab_6(self):
+        current_index = self.table_widget.tabs.currentIndex()
+        self.table_widget.tabs.insertTab(current_index, tab_6_widget(), "Tab 6: Camera Video")
         self.table_widget.tabs.setCurrentIndex(current_index)
 
     def removeTab(self):
@@ -854,7 +865,162 @@ class tab_4_widget(QWidget):
             self.text_box.append('Please download EMNIST Dataset and try again.')
 
 
+class tab_6_widget(QWidget):
+    def __init__(self):
+        super(tab_6_widget, self).__init__()
+        self.initUI()
+
+
+
+    def initUI1(self):
+        # Outer layout holds every other layout together
+        self.layout_outer = QHBoxLayout()
+        self.setLayout(self.layout_outer) 
+        self.clearButton = QPushButton('Open Camera')
+        self.layout_outer.addWidget(self.clearButton)
+        self.clearButton.clicked.connect(self.camera_with_thread)
+
+        #self.takePhotoButton = QPushButton('Take Photo')
+        #self.layout_outer.addWidget(self.takePhotoButton)
+        #self.takePhotoButton
+
+
+    def initUI(self):
+        # upper layout
+        upper_layout = QHBoxLayout(self)
+
+        # set up layout for canvas 
+        self.canvas_layout = QVBoxLayout(self)
+        self.canvas_label = QLabel()
+        text_label = QLabel("This is Tab 6: Predict with captured image")
+        self.canvas_layout.addWidget(text_label)
+        self.canvas = QtGui.QPixmap(400, 400)
+
+        pixmap_initial = QPixmap("images\captured_image.png")
+        pixmap_scaled = QPixmap.scaled(pixmap_initial, 400, 400)
+        self.canvas_label.setPixmap(pixmap_scaled)
+        self.canvas_layout.addWidget(self.canvas_label)
+
+        # Test layout
+        self.test_layout = QVBoxLayout(self)
+        self.button1 = QPushButton("Load Model", self)
+        #self.button1.clicked.connect(self.load_selected_model)
+        self.button2 = QPushButton("Predict", self)
+
+        #self.button2.clicked.connect(self.predict_show)
+
+
+        # Add button to start live video feed
+        self.openCameraButton = QPushButton('Open Camera')
+        self.clearButton = QPushButton('Clear')
+        self.openCameraButton.clicked.connect(self.camera_with_thread)
+
+
+        # Set up text for text browser
+        prediction_text = "Prediction: "
+        Accuracy_text = "Confidence: "
+        self.selected_model_text = "N/A"
+
+        # Text browsor for currently loaded model
+        self.set_model_browser = QTextBrowser(self)
+        self.set_model_browser.setText("Model loaded: " + self.selected_model_text)
+        self.set_model_browser.setFont(QFont('Serif', 10))
+        self.set_model_browser.setMaximumHeight(50)
+
+        # Text browser for prediction
+        self.prediction_browser = QTextBrowser(self)
+        self.prediction_browser.append(prediction_text)
+        self.prediction_browser.setFont(QFont('Serif', 10))
+        self.prediction_browser.setMaximumHeight(50)
+
+        # Test browser for accuracy
+        self.accuracy_browser = QTextBrowser(self)
+        self.accuracy_browser.setText(Accuracy_text)
+        self.accuracy_browser.setFont(QFont('Serif', 10))
+        self.accuracy_browser.setMaximumHeight(50)
+
+        # Add combobox to choose model
+        self.model_combo = QComboBox(self)
+        model_option_array = ["Select", "Default_Net", "CNN_Net", "ResNet_Net", "Custom_Net"]
+        self.model_combo.addItems(model_option_array)
+
+        # Layout setup
+        self.test_layout.addSpacing(50)
+        self.test_layout.addWidget(self.set_model_browser)
+        self.test_layout.addSpacing(10)
+        self.test_layout.addWidget(self.prediction_browser)
+        self.test_layout.addSpacing(10)
+        self.test_layout.addWidget(self.accuracy_browser)
+        self.test_layout.addWidget(self.model_combo)
+        self.test_layout.addWidget(self.button1)
+        self.test_layout.addWidget(self.button2)
+        self.test_layout.addWidget(self.openCameraButton)
+        self.test_layout.addWidget(self.clearButton)
+        self.test_layout.addSpacing(150)
+
+        # add nested layout
+        upper_layout.addLayout(self.canvas_layout)
+        #upper_layout.addStretch()   # prevents button from stretching when window size is changed
+        upper_layout.addLayout(self.test_layout)
+
         
+        # add clear button to remove drawn image from canvas
+        clearButton = QPushButton('Clear')
+        self.canvas_layout.addWidget(clearButton)
+        clearButton.clicked.connect(self.clear_image)
+
+    def clear_image(self):
+        self.canvas.fill(QtGui.QColor('white'))
+        self.canvas_label.setPixmap(self.canvas)
+
+
+    
+    def camera_with_thread(self):
+        self.thread = QThread(parent = self)
+        self.worker = worker_camera()
+
+        self.worker.moveToThread(self.thread)
+
+        # connect signals and slots
+        self.thread.started.connect(self.worker.worker_start_camera)
+        #self.worker.progress.connect(self.reportProgress)
+        self.worker.progress.connect(self.thread.quit)
+        self.worker.finished.connect(self.worker.deleteLater)
+        self.thread.finished.connect(self.thread.deleteLater)  
+
+        # Start the thread
+        self.thread.start()  
+
+
+
+class worker_camera(QObject):
+    #capture_picture = pyqtSignal()
+    finished = pyqtSignal()
+    progress = pyqtSignal(int)
+
+    def worker_start_camera(self):
+
+        try:
+            #vid = cv2.VideoCapture(0 + cv2.CAP_DSHOW)
+            vid = cv2.VideoCapture(0)
+            while(1):
+                ret, frame = vid.read()
+                cv2.imshow('Live Camera Feed', frame)
+                if cv2.waitKey(1) & 0xFF == ord('q'):
+                    break
+                elif cv2.waitKey(1) & 0xFF == ord('v'):
+                    #self.capture_picture.emit()
+                    #cv2.imwrite('frame.png', frame)
+                    cv2.imwrite('images\captured_image.png', frame)
+                    break
+
+            vid.release()
+            cv2.destroyAllWindows() 
+
+        except AssertionError:
+            print("Assertion Error: Check if camera is connected")
+
+
 
 
 
