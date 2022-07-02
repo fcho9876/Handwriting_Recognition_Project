@@ -1,5 +1,4 @@
 # Handwritten Digits and Letters Recogniser
-<p><b>This project has been adapted from COMPSYS 302</b></p>
 <p>This project's aim is to get familiar with GUI software design, and basic machine learning using Python. The NN models are trained on the EMNIST dataset and recognizes handwritten digits (0 to 9) and letters (A to Z and a to z)</p>
 
 ## Installation ##
@@ -21,6 +20,7 @@ conda activate py38
   <li>Torch</li>
   <li>numpy</li>
   <li>matplotlib</li>
+  <li>OpenCV</li>
 </ul>
 
 
@@ -30,6 +30,7 @@ pip install torch
 pip install torchvision
 pip install numpy
 pip install matplotlib
+pip install opencv-python
 ```
 
 <p>Install and run <a href = "https://code.visualstudio.com/">Visual Studio Code</a></p>
@@ -46,11 +47,12 @@ pip install matplotlib
 </ol>
 
 ## Details of improvements/updates for each program version ##
-<p> Program Version 1.1 </p>
+<p> Program Version 1.0 </p>
 <ul>
   <li>Drawing canvas</li>
   <li>EMNIST Train/Test Dataset Viewer</li>
   <li>3 Pre-trained NN Models</li>
   <li>Custom model training with model and epoch selection</li>
+  <li>Detect handwriting through camera image capture</li>
 </ul>
 

@@ -34,7 +34,7 @@ class myGUI(QMainWindow):
 
     def initUI(self):
         self.setWindowTitle('Python Project Build v1.0 [Personal Repo]')
-        self.setGeometry(300, 300, 600, 600) # mixture of move(x, y) and resize(width, height)
+        self.setGeometry(300, 300, 650, 650) # mixture of move(x, y) and resize(width, height)
 
         # create instance of our NNModel Class to download dataset 
         global nnmodel
@@ -213,7 +213,7 @@ class tab_1_widget(QWidget):
 
         self.welcome_text_box = QTextBrowser(self)
         self.welcome_text_box.setText(" ")
-        self.welcome_text_box.append("Project Version 1.1")
+        self.welcome_text_box.append("Project Version 1.0")
         self.welcome_text_box.append(" ")
         self.welcome_text_box.append("Features: ")
         self.welcome_text_box.append("- Drawing canvas")
@@ -226,6 +226,8 @@ class tab_1_widget(QWidget):
         self.welcome_text_box.append("      - ResNet_Net")
         self.welcome_text_box.append(" ")
         self.welcome_text_box.append("- Custom model training with model and epoch selection")
+        self.welcome_text_box.append(" ")
+        self.welcome_text_box.append("- Detect handwriting through camera image capture")
         self.welcome_text_box.setFont(QFont('Serif', 10))
         
         self.tab_1_layout.addWidget(self.welcome_text_box)
@@ -937,6 +939,8 @@ class tab_6_widget(QWidget):
         self.test_layout.addWidget(self.model_combo)
         self.test_layout.addWidget(self.button1)
         self.test_layout.addWidget(self.button2)
+        self.camera_setting_text = QLabel('Camera Settings')
+        self.test_layout.addWidget(self.camera_setting_text)
         self.test_layout.addWidget(self.openCameraButton)
         #self.test_layout.addWidget(self.takePhotoButton)
         self.test_layout.addWidget(self.clearButton)
