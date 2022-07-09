@@ -1,6 +1,6 @@
 # File name: myGUI.py
 # Author: Francis Cho
-# Project Version: 1.0
+# Project Version: 2.0
 # Description: GUI for the Handwritten Digit/Letter Recognizer using PyQt5
 # Python Version: 3.1
 
@@ -24,6 +24,7 @@ import os
 import cv2
 
 from scripts.NNModel import NNModel
+from scripts.imageProcessing import imageProcessing
 
 
 class myGUI(QMainWindow):
@@ -32,13 +33,18 @@ class myGUI(QMainWindow):
         super().__init__()
         self.initUI()
 
+        # self.imageProcess = imageProcessing()
+
     def initUI(self):
-        self.setWindowTitle('Python Project Build v1.0 [Personal Repo]')
+        self.setWindowTitle('Python Project Build v2.0 [Personal Repo]')
         self.setGeometry(300, 300, 650, 650) # mixture of move(x, y) and resize(width, height)
 
         # create instance of our NNModel Class to download dataset 
         global nnmodel
         nnmodel = NNModel()
+
+        global imageProcess
+        imageProcess = imageProcessing()
 
         # Initialize tab widget
         self.table_widget = MyTableWidget(self)
