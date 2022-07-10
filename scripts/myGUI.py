@@ -69,8 +69,10 @@ class myGUI(QMainWindow):
         viewmenu = menubar.addMenu('&View')
         # Version History
         version_history = QMenu('Version history', self)
-        version_number = QAction('Version 1.1', self)
-        version_history.addAction(version_number)
+        version_number_1 = QAction('Version 1.0', self)
+        version_number_2 = QAction('Version 2.0', self)
+        version_history.addAction(version_number_1)
+        version_history.addAction(version_number_2)
         viewmenu.addMenu(version_history)
 
 
@@ -219,7 +221,7 @@ class tab_1_widget(QWidget):
 
         self.welcome_text_box = QTextBrowser(self)
         self.welcome_text_box.setText(" ")
-        self.welcome_text_box.append("Project Version 1.0")
+        self.welcome_text_box.append("Project Version 2.0")
         self.welcome_text_box.append(" ")
         self.welcome_text_box.append("Features: ")
         self.welcome_text_box.append("- Drawing canvas")
@@ -250,9 +252,12 @@ class tab_2_widget(QWidget):
         self.canvas_label = QLabel()
         text_label = QLabel("This is Tab 2: Drawing Canvas")
         self.canvas_layout.addWidget(text_label)
-        self.canvas = QtGui.QPixmap(400, 400)
+        canvas_resize = QtGui.QPixmap(500, 500)
+        self.canvas = canvas_resize.scaled(self.width(), self.height())
         self.canvas.fill(QtGui.QColor('white'))
+        canvas_resize.fill(QtGui.QColor('white'))
         self.canvas_label.setPixmap(self.canvas)
+        self.canvas_label.setMinimumSize(1,1)
         self.canvas_layout.addWidget(self.canvas_label)
 
         # Test layout
@@ -327,13 +332,13 @@ class tab_2_widget(QWidget):
 
 
 
-        #self.text_label_height = 20 # used to offset cursor
-        #print(self.text_label_height)
+        self.text_label_height = 20 # used to offset cursor
+        print(self.text_label_height)
 
-        #self.text_box_height = self.model_combo.height() # used to offset cursor
+        self.text_box_height = self.model_combo.height() # used to offset cursor
         
         # total offset from widgets, added to y-position
-        #self.total_offset = self.text_label_height + self.text_box_height
+        self.total_offset = self.text_label_height + self.text_box_height
 
         # add second layout to main outer layout
         #self.layout_outer.addLayout(self.canvas_layout2)
@@ -398,23 +403,23 @@ class tab_2_widget(QWidget):
         if text == "Size 3":
             paint_width = 3
             self.last_x = event.x()
-            self.last_y = event.y()
+            self.last_y = event.y()+ self.total_offset
         elif text == "Size 6":
             paint_width = 6
             self.last_x = event.x()
-            self.last_y = event.y()
+            self.last_y = event.y()+ self.total_offset
         elif text == "Size 9":
             paint_width = 9
             self.last_x = event.x()
-            self.last_y = event.y()
+            self.last_y = event.y()+ self.total_offset
         elif text == "Size 12":
             paint_width = 12
             self.last_x = event.x()
-            self.last_y = event.y()
+            self.last_y = event.y()+ self.total_offset
         elif text == "Size 18":
             paint_width = 18
             self.last_x = event.x()
-            self.last_y = event.y()
+            self.last_y = event.y()+ self.total_offset
 
         return paint_width
 
@@ -426,12 +431,12 @@ class tab_2_widget(QWidget):
 
 
     # resize event of canvas
-    #def resizeEvent(self, e):
-    #    canvas_resize = QtGui.QPixmap(500, 500)
-    #    canvas_resize.fill(QtGui.QColor('white'))
-    #    self.canvas = canvas_resize.scaled(self.width(), self.height())
-    #    self.canvas_label.setPixmap(self.canvas)
-    #    self.canvas_label.resize(self.width(), self.height())
+    def resizeEvent(self, e):
+        canvas_resize = QtGui.QPixmap(500, 500)
+        canvas_resize.fill(QtGui.QColor('white'))
+        self.canvas = canvas_resize.scaled(self.width(), self.height(), aspectRatioMode = Qt.KeepAspectRatio)
+        self.canvas_label.setPixmap(self.canvas)
+        #self.canvas_label.resize(self.width(), self.height())
 
 
     # Adapted from https://www.pythonguis.com/tutorials/bitmap-graphics/
@@ -439,7 +444,7 @@ class tab_2_widget(QWidget):
     def mouseMoveEvent(self, event: QtGui.QMouseEvent):
         if self.last_x is None: 
             self.last_x = event.x()
-            self.last_y = event.y()
+            self.last_y = event.y() + self.total_offset
             return 
 
         self.painter = QtGui.QPainter(self.canvas_label.pixmap())
@@ -447,12 +452,12 @@ class tab_2_widget(QWidget):
         self.p.setWidth(self.check_paint_size(event))
         self.painter.setPen(self.p)
 
-        self.painter.drawLine(self.last_x, self.last_y, event.x(), event.y())
+        self.painter.drawLine(self.last_x, self.last_y, event.x(), event.y() + self.total_offset)
         self.painter.end()
         self.update()
 
         self.last_x = event.x()
-        self.last_y = event.y()
+        self.last_y = event.y() + self.total_offset
 
     def mouseReleaseEvent(self, event: QtGui.QMouseEvent):
         # Reset when mouse click released

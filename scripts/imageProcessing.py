@@ -162,6 +162,6 @@ class imageProcessing():
         image_adjust_Tensor = torch.unsqueeze(image_adjust_Tensor, 0)
         image_adjust_Tensor = torch.unsqueeze(image_adjust_Tensor, 0) 
 
-        return image_adjust_Tensor       
+        return image_adjust_Tensor
 
 
